@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}新建占卜 - 塔罗解牌助手{% endblock %}
+{% block content %}
+<h1 class="page-title-float">新建占卜</h1>
+<div class="step-bar glass">
+    <div class="step-indicator">
+        <span class="step-dot {% if step >= 1 %}active{% endif %}">1. 问题</span>
+        <span class="step-dot {% if step >= 2 %}active{% endif %}">2. 牌阵</span>
+        <span class="step-dot {% if step >= 3 %}active{% endif %}">3. 录牌</span>
+    </div>
+</div>
+
+{% if step == 1 %}
+<!-- Step 1: Question -->
+<section class="reading-step">
+    <h2>设定你的问题</h2>
+    <div class="tips-box">
+        <h3>提问技巧</h3>
+        <ul>
+            <li>使用开放式问题，如「关于……我需要了解什么？」</li>
+            <li>避免简单是非题（除非使用是非牌阵）</li>
+            <li>不要询问确切时间或他人的私密想法</li>
+            <li>专注于你自身能影响和改变的事情</li>
+        </ul>
+    </div>
+    <form method="get" action="/reading/new" id="question-form" novalidate>
+        <input type="hidden" name="step" value="2">
+        <textarea name="question" id="question-input" rows="3" placeholder="输入你的问题..." class="question-input"></textarea>
+        <div class="field-error" id="question-error" role="alert">
+            <span class="field-error-icon">☽</span>
+            <span>请先写下你想问的问题</span>
+        </div>
+        <button type="submit" class="btn btn-primary">下一步：选择牌阵</button>
+    </form>
+</section>
+
+{% elif step == 2 %}
+<!-- Step 2: Choose spread -->
+<section class="reading-step">
+    <h2>选择牌阵</h2>
+    <div class="spread-grid">
+        {% for s in spreads %}
+        <a href="/reading/new?step=3&spread_id={{ s.id }}&question={{ question | urlencode }}" class="spread-card">
+            <span class="spread-count">{{ s.card_count }} 张牌</span>
+            <h3>{{ s.name_zh }}</h3>
+            <span class="tag">{{ category_labels.get(s.category, s.category) }}</span>
+            <p>{{ s.description }}</p>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+
+{% elif step == 3 and spread %}
+<!-- Step 3: Input cards -->
+<section class="reading-step">
+    <h2>录入抽到的牌</h2>
+    {% if question %}
+    <div class="question-box"><strong>问题：</strong>{{ question }}</div>
+    {% endif %}
+    <p class="page-desc">牌阵：{{ spread.name_zh }} · 请按坑位顺序填入你线下抽到的牌</p>
+
+    <form method="post" action="/reading/submit" id="reading-form" novalidate>
+        <input type="hidden" name="question" value="{{ question }}">
+        <input type="hidden" name="spread_id" value="{{ spread.id }}">
+
+        <div class="draw-inputs">
+            {% for pos in spread.positions %}
+            <div class="draw-input-card">
+                <div class="position-header">
+                    <span class="position-num">{{ pos.index + 1 }}</span>
+                    <div>
+                        <h3>{{ pos.label }}</h3>
+                        <p class="position-hint">{{ pos.hint }}</p>
+                    </div>
+                </div>
+                <div class="card-select-row">
+                    <select name="card_{{ pos.index }}" class="card-select" data-index="{{ pos.index }}">
+                        <option value="">选择牌...</option>
+                        {% for card in cards %}
+                        <option value="{{ card.id }}">{{ card.name_zh }} ({{ card.name_en }})</option>
+                        {% endfor %}
+                    </select>
+                    <label class="reversed-toggle">
+                        <input type="checkbox" name="reversed_{{ pos.index }}" value="1" class="reversed-check">
+                        <span>逆位</span>
+                    </label>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="field-error" id="cards-error" role="alert">
+            <span class="field-error-icon">☽</span>
+            <span>请为每个坑位选择对应的牌</span>
+        </div>
+        <button type="submit" class="btn btn-primary">生成解读</button>
+    </form>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/reading.js"></script>
+{% endblock %}

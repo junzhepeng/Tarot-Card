@@ -1,0 +1,121 @@
+[
+  {
+    "id": "single-card",
+    "name_zh": "单牌",
+    "category": "quick",
+    "card_count": 1,
+    "description": "快速的每日洞见或针对一个问题的解答，适合需要即时指引时使用。",
+    "positions": [
+      {"index": 0, "label": "洞察", "hint": "当下最需要你关注的核心信息与能量"}
+    ],
+    "tips": "先观察图像细节，第一印象往往最个人化。将牌义与当下处境直接关联。",
+    "layout": {"type": "grid", "cols": 1, "coords": [[0, 0]]}
+  },
+  {
+    "id": "yes-no",
+    "name_zh": "是非牌",
+    "category": "quick",
+    "card_count": 1,
+    "description": "针对二选一问题的单牌抽取，获得一个明确的倾向性答案。",
+    "positions": [
+      {"index": 0, "label": "答案", "hint": "对问题的倾向性回应，正位偏「是」，逆位偏「否」或「暂缓」"}
+    ],
+    "tips": "问题要具体明确。逆位不一定是「否」，可能是「暂缓」或「换种方式」。结合牌义综合判断。",
+    "layout": {"type": "grid", "cols": 1, "coords": [[0, 0]]}
+  },
+  {
+    "id": "past-present-future",
+    "name_zh": "过去·现在·未来",
+    "category": "classic",
+    "card_count": 3,
+    "description": "经典三牌阵，了解过去如何影响现在，并塑造未来趋势。",
+    "positions": [
+      {"index": 0, "label": "过去", "hint": "影响当前的根源与过往能量"},
+      {"index": 1, "label": "现在", "hint": "你此刻所处的状态与挑战"},
+      {"index": 2, "label": "未来", "hint": "若延续当前路径的可能趋势，非固定预言"}
+    ],
+    "tips": "按时间流串联三张牌，关注花色重复与大阿卡纳数量。未来牌是趋势而非定数。",
+    "layout": {"type": "grid", "cols": 3, "coords": [[0, 0], [1, 0], [2, 0]]}
+  },
+  {
+    "id": "triad",
+    "name_zh": "三牌阵",
+    "category": "classic",
+    "card_count": 3,
+    "description": "自由三牌阵，不设固定位置语义，三张牌作为整体叙事，由解读者自行赋予结构。",
+    "positions": [
+      {"index": 0, "label": "第一张", "hint": "故事的开端或第一个关键要素"},
+      {"index": 1, "label": "第二张", "hint": "发展的核心或转折点"},
+      {"index": 2, "label": "第三张", "hint": "结论、结果或需要关注的方向"}
+    ],
+    "tips": "三张牌作为整体叙事，可自行赋予时间、因果或主题结构。关注花色重复、大阿卡纳数量与宫廷牌。",
+    "layout": {"type": "grid", "cols": 3, "coords": [[0, 0], [1, 0], [2, 0]]}
+  },
+  {
+    "id": "cross",
+    "name_zh": "十字牌阵",
+    "category": "classic",
+    "card_count": 5,
+    "description": "深入了解处境、面临的挑战以及前进的道路。",
+    "positions": [
+      {"index": 0, "label": "处境", "hint": "你目前所处的核心状态与环境"},
+      {"index": 1, "label": "挑战", "hint": "面前的主要障碍或需要面对的困难"},
+      {"index": 2, "label": "建议", "hint": "应对当前局面最明智的方向与行动"},
+      {"index": 3, "label": "基础", "hint": "潜意识或根基层面的影响因素"},
+      {"index": 4, "label": "结果", "hint": "若按建议行动，可能导向的结果"}
+    ],
+    "tips": "重点看「挑战」与「建议」之间的对话关系。基础牌揭示深层的驱动力。",
+    "layout": {"type": "grid", "cols": 3, "coords": [[1, 0], [0, 1], [1, 1], [2, 1], [1, 2]]}
+  },
+  {
+    "id": "lovers-cross",
+    "name_zh": "恋人十字",
+    "category": "relationship",
+    "card_count": 5,
+    "description": "专为感情问题设计，深入了解双方动态、连接与爱情走向。",
+    "positions": [
+      {"index": 0, "label": "你", "hint": "你在这段关系中的状态与能量"},
+      {"index": 1, "label": "伴侣", "hint": "对方的状态、感受与立场"},
+      {"index": 2, "label": "连接", "hint": "你们之间的纽带与互动模式"},
+      {"index": 3, "label": "暗流", "hint": "未说出口的部分或隐藏的影响因素"},
+      {"index": 4, "label": "潜力", "hint": "关系的发展方向与长期可能性"}
+    ],
+    "tips": "并排比较「你」与「伴侣」的牌是否互补或冲突。关注「暗流」揭示的隐藏信息。",
+    "layout": {"type": "grid", "cols": 3, "coords": [[1, 0], [0, 1], [1, 1], [2, 1], [1, 2]]}
+  },
+  {
+    "id": "secret-crush",
+    "name_zh": "暗恋牌阵",
+    "category": "relationship",
+    "card_count": 5,
+    "description": "探索心仪对象的心意、是否应该追求，以及未来的可能性。",
+    "positions": [
+      {"index": 0, "label": "对方感受", "hint": "对方对你的真实感受与态度"},
+      {"index": 1, "label": "是否追求", "hint": "现在是否是采取行动的合适时机"},
+      {"index": 2, "label": "未来潜力", "hint": "如果发展，关系的可能走向"},
+      {"index": 3, "label": "其他人", "hint": "第三者或外界因素的影响"},
+      {"index": 4, "label": "指引", "hint": "最重要的行动建议与方向指引"}
+    ],
+    "tips": "「指引」位置是最重要的一张牌。综合所有位置再做判断，不要只看单一牌义。",
+    "layout": {"type": "grid", "cols": 3, "coords": [[0, 0], [1, 0], [2, 0], [0, 1], [2, 1]]}
+  },
+  {
+    "id": "voice-of-heart",
+    "name_zh": "心之声",
+    "category": "relationship",
+    "card_count": 8,
+    "description": "深入了解感情现状、双方内外在印象、心态期望，以及指引建议。",
+    "positions": [
+      {"index": 0, "label": "现状", "hint": "感情目前的真实状态"},
+      {"index": 1, "label": "近期未来", "hint": "短期内关系可能的发展"},
+      {"index": 2, "label": "内在视角", "hint": "你内心深处的真实感受"},
+      {"index": 3, "label": "外在视角", "hint": "你向外展现出的状态与形象"},
+      {"index": 4, "label": "对方想法", "hint": "对方内心的真实想法"},
+      {"index": 5, "label": "对方期望", "hint": "对方对这段关系的期望"},
+      {"index": 6, "label": "你的想法", "hint": "你理性层面上的想法与态度"},
+      {"index": 7, "label": "建议", "hint": "综合所有信息后的行动建议"}
+    ],
+    "tips": "先读「内在视角」与「外在视角」的对比，再比较双方「想法」与「期望」是否一致。",
+    "layout": {"type": "grid", "cols": 4, "coords": [[0, 0], [1, 0], [2, 0], [3, 0], [0, 1], [1, 1], [2, 1], [3, 1]]}
+  }
+]

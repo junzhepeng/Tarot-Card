@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}星谕 · 塔罗解牌{% endblock %}
+{% block content %}
+<section class="hero">
+    <p class="hero-eyebrow">线下抽牌 · 星空解牌</p>
+    <h1 class="hero-title">在星河之间<br><em>读懂每一张牌</em></h1>
+    <p class="hero-sub">录入你亲手抽到的牌，让星谕为你梳理坑位含义、牌阵叙事与模式线索。</p>
+    <div class="hero-actions">
+        <a href="/reading/new" class="btn btn-primary">
+            <span class="btn-glow"></span>
+            开始解读
+        </a>
+        <a href="/library" class="btn btn-ghost">浏览牌义</a>
+    </div>
+</section>
+
+<section class="stats-row">
+    <div class="stat-card glass">
+        <span class="stat-num">{{ card_count }}</span>
+        <span class="stat-label">张牌义收录</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-card glass">
+        <span class="stat-num">{{ spread_count }}</span>
+        <span class="stat-label">种牌阵布局</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-card glass">
+        <span class="stat-num">∞</span>
+        <span class="stat-label">次离线解读</span>
+    </div>
+</section>
+
+<section class="steps-section">
+    <h2 class="section-title">四步开启解读</h2>
+    <div class="steps-grid">
+        <div class="step-card glass">
+            <div class="step-icon">◇</div>
+            <h3>凝念</h3>
+            <p>写下你真正想问的事，让问题在星空下变得清晰。</p>
+        </div>
+        <div class="step-card glass">
+            <div class="step-icon">☆</div>
+            <h3>择阵</h3>
+            <p>从单牌到八牌感情阵，选一张能承载问题的星图。</p>
+        </div>
+        <div class="step-card glass">
+            <div class="step-icon">✦</div>
+            <h3>抽牌</h3>
+            <p>用你自己的牌组线下抽牌，让直觉替你挑选。</p>
+        </div>
+        <div class="step-card glass">
+            <div class="step-icon">☽</div>
+            <h3>录入</h3>
+            <p>将牌面填入对应坑位，获取结构化的解牌提示。</p>
+        </div>
+    </div>
+</section>
+
+<section class="quick-links">
+    <a href="/spreads" class="quick-link glass">
+        <span class="ql-icon">⊞</span>
+        <div>
+            <strong>牌阵库</strong>
+            <p>了解每个坑位的含义与解读技巧</p>
+        </div>
+    </a>
+    <a href="/history" class="quick-link glass">
+        <span class="ql-icon">◷</span>
+        <div>
+            <strong>占卜记录</strong>
+            <p>回顾过往牌面，写下你的感悟</p>
+        </div>
+    </a>
+</section>
+{% endblock %}

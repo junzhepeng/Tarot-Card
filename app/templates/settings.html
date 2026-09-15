@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}设置 - 塔罗解牌助手{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>设置</h1>
+    <p class="page-desc">配置可选的 AI 深度解读功能（OpenAI 兼容 API）</p>
+</div>
+
+<form method="post" action="/settings" class="settings-form">
+    <div class="form-group">
+        <label for="api_base_url">API Base URL</label>
+        <input type="text" id="api_base_url" name="api_base_url" value="{{ api_base_url }}"
+               placeholder="https://api.openai.com/v1" class="form-input">
+        <small>支持 OpenAI 及兼容接口（如 DeepSeek、通义等）</small>
+    </div>
+    <div class="form-group">
+        <label for="api_key">API Key</label>
+        <input type="password" id="api_key" name="api_key" value="{{ api_key }}"
+               placeholder="sk-..." class="form-input">
+        <small>密钥仅保存在本地数据库，不会上传</small>
+    </div>
+    <div class="form-group">
+        <label for="model_name">模型名称</label>
+        <input type="text" id="model_name" name="model_name" value="{{ model_name }}"
+               placeholder="gpt-4o-mini" class="form-input">
+    </div>
+    <button type="submit" class="btn btn-primary">保存设置</button>
+</form>
+
+<div class="tips-box" style="margin-top: 2rem;">
+    <h3>说明</h3>
+    <ul>
+        <li>不配置 AI 时，程序仍可使用模板解读功能，完全离线可用。</li>
+        <li>配置后可在解读结果页点击「生成 AI 深度解读」获取更详细的分析。</li>
+        <li>所有数据（包括 API Key）均存储在本地 SQLite 数据库中。</li>
+    </ul>
+</div>
+{% endblock %}

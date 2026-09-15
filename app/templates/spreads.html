@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}牌阵库 - 塔罗解牌助手{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>牌阵库</h1>
+    <p class="page-desc">选择适合你的牌阵，了解各坑位含义</p>
+</div>
+
+<div class="filter-bar">
+    <a href="/spreads" class="btn {% if not category %}btn-primary{% else %}btn-secondary{% endif %}">全部</a>
+    {% for cat_id, cat_label in category_labels.items() %}
+    <a href="/spreads?category={{ cat_id }}" class="btn {% if category == cat_id %}btn-primary{% else %}btn-secondary{% endif %}">{{ cat_label }}</a>
+    {% endfor %}
+</div>
+
+<div class="spread-grid">
+    {% for spread in spreads %}
+    <a href="/spreads/{{ spread.id }}" class="spread-card">
+        <span class="spread-count">{{ spread.card_count }} 张牌</span>
+        <h3>{{ spread.name_zh }}</h3>
+        <span class="tag">{{ category_labels.get(spread.category, spread.category) }}</span>
+        <p>{{ spread.description }}</p>
+    </a>
+    {% endfor %}
+</div>
+{% endblock %}

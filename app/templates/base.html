@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}星谕 · 塔罗解牌{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="cosmos-bg" aria-hidden="true"></div>
+    <div class="stars-layer" aria-hidden="true"></div>
+    <div class="vignette" aria-hidden="true"></div>
+
+    <nav class="navbar">
+        <a href="/" class="nav-brand">
+            <span class="brand-icon">☽</span>
+            <span class="brand-text">星谕</span>
+        </a>
+        <div class="nav-links">
+            <a href="/reading/new">解读</a>
+            <a href="/library">牌义</a>
+            <a href="/spreads">牌阵</a>
+            <a href="/history">记录</a>
+            <a href="/settings">设置</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <span class="footer-star">✦</span>
+        <p>星谕 · 线下抽牌，星空下解牌</p>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

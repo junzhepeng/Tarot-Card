@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}{{ spread.name_zh }} - 牌阵库{% endblock %}
+{% block content %}
+<a href="/spreads" class="back-link">← 返回牌阵库</a>
+<div class="page-header">
+    <h1>{{ spread.name_zh }}</h1>
+    <div class="meta-tags">
+        <span class="tag">{{ spread.card_count }} 张牌</span>
+        <span class="tag">{{ category_labels.get(spread.category, spread.category) }}</span>
+    </div>
+    <p class="page-desc">{{ spread.description }}</p>
+</div>
+
+<h2>坑位说明</h2>
+<div class="position-list">
+    {% for pos in spread.positions %}
+    <div class="position-item">
+        <span class="position-num">{{ pos.index + 1 }}</span>
+        <div>
+            <h3>{{ pos.label }}</h3>
+            <p>{{ pos.hint }}</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="tips-box">
+    <h3>解读技巧</h3>
+    <p>{{ spread.tips }}</p>
+</div>
+
+<a href="/reading/new?step=2&spread_id={{ spread.id }}" class="btn btn-primary">使用此牌阵开始解读</a>
+{% endblock %}

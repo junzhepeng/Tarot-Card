@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}{{ card.name_zh }} - 牌义库{% endblock %}
+{% block content %}
+<a href="/library" class="back-link">← 返回牌义库</a>
+<div class="page-header">
+    <h1>{{ card.name_zh }}</h1>
+    <p class="card-en">{{ card.name_en }}</p>
+    <div class="meta-tags">
+        <span class="tag">{{ '大阿卡纳' if card.arcana == 'major' else '小阿卡纳' }}</span>
+        {% if card.suit %}
+        <span class="tag">{{ {'wands':'权杖','cups':'圣杯','swords':'宝剑','pentacles':'星币'}[card.suit] }}</span>
+        {% endif %}
+        {% if card.element %}
+        <span class="tag">{{ card.element }}元素</span>
+        {% endif %}
+    </div>
+</div>
+
+<div class="meaning-grid">
+    <div class="meaning-card upright">
+        <h2>正位</h2>
+        <div class="keywords">
+            {% for kw in card.upright_keywords %}
+            <span class="tag tag-upright">{{ kw }}</span>
+            {% endfor %}
+        </div>
+        <p>{{ card.upright_meaning }}</p>
+    </div>
+    <div class="meaning-card reversed">
+        <h2>逆位</h2>
+        <div class="keywords">
+            {% for kw in card.reversed_keywords %}
+            <span class="tag tag-reversed">{{ kw }}</span>
+            {% endfor %}
+        </div>
+        <p>{{ card.reversed_meaning }}</p>
+    </div>
+</div>
+{% endblock %}

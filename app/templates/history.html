@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}历史记录 - 塔罗解牌助手{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>占卜历史</h1>
+    <p class="page-desc">回顾过往的占卜记录与笔记</p>
+</div>
+
+{% if readings %}
+<div class="history-list">
+    {% for r in readings %}
+    <a href="/reading/{{ r.id }}" class="history-item">
+        <div class="history-meta">
+            <span class="history-date">{{ r.created_at }}</span>
+            <span class="tag">{{ spread_map.get(r.spread_id).name_zh if spread_map.get(r.spread_id) else r.spread_id }}</span>
+        </div>
+        <h3>{{ r.question }}</h3>
+        <div class="history-cards">
+            {% for c in r.cards %}
+            <span class="mini-card">{{ card_map.get(c.card_id).name_zh if card_map.get(c.card_id) else c.card_id }}{% if c.is_reversed %} ↓{% endif %}</span>
+            {% endfor %}
+        </div>
+        {% if r.notes %}
+        <p class="history-notes">{{ r.notes[:80] }}{% if r.notes|length > 80 %}...{% endif %}</p>
+        {% endif %}
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <p>还没有占卜记录。</p>
+    <a href="/reading/new" class="btn btn-primary">开始第一次解读</a>
+</div>
+{% endif %}
+{% endblock %}

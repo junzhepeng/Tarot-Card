@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}牌义库 - 塔罗解牌助手{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>牌义库</h1>
+    <p class="page-desc">浏览 78 张维特塔罗牌的正逆位含义</p>
+</div>
+
+<form class="filter-bar" method="get" action="/library">
+    <input type="text" name="q" value="{{ q }}" placeholder="搜索牌名..." class="search-input">
+    <select name="arcana" onchange="this.form.submit()">
+        <option value="">全部阿卡纳</option>
+        <option value="major" {% if arcana == 'major' %}selected{% endif %}>大阿卡纳</option>
+        <option value="minor" {% if arcana == 'minor' %}selected{% endif %}>小阿卡纳</option>
+    </select>
+    <select name="suit" onchange="this.form.submit()">
+        <option value="">全部花色</option>
+        <option value="wands" {% if suit == 'wands' %}selected{% endif %}>权杖</option>
+        <option value="cups" {% if suit == 'cups' %}selected{% endif %}>圣杯</option>
+        <option value="swords" {% if suit == 'swords' %}selected{% endif %}>宝剑</option>
+        <option value="pentacles" {% if suit == 'pentacles' %}selected{% endif %}>星币</option>
+    </select>
+    <button type="submit" class="btn btn-secondary">搜索</button>
+</form>
+
+<div class="card-grid">
+    {% for card in cards %}
+    <a href="/library/{{ card.id }}" class="card-item">
+        <h3>{{ card.name_zh }}</h3>
+        <p class="card-en">{{ card.name_en }}</p>
+        <div class="keywords">
+            {% for kw in card.upright_keywords[:3] %}
+            <span class="tag">{{ kw }}</span>
+            {% endfor %}
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% if not cards %}
+<p class="empty-msg">未找到匹配的牌。</p>
+{% endif %}
+{% endblock %}
