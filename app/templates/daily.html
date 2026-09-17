@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% from "_card_face.html" import card_face %}
+{% block title %}每日一牌 - 星谕{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>每日一牌</h1>
+    <p class="page-desc">每天记录一张牌与简短感受，建立与牌面的日常联结</p>
+</div>
+
+<div class="daily-today">
+    <h2>今日 · {{ today }}</h2>
+    {% if today_entry %}
+    {% set today_card = card_map.get(today_entry.card_id) %}
+    <div class="daily-today-display">
+        {% if today_card %}{{ card_face(today_card, today_entry.is_reversed, 'md', true) }}{% endif %}
+        {% if today_entry.notes %}
+        <p class="daily-notes">{{ today_entry.notes }}</p>
+        {% endif %}
+        <p class="daily-meta">记录于 {{ today_entry.created_at }}</p>
+    </div>
+    {% endif %}
+
+    <form method="post" action="/daily" class="daily-form">
+        <div class="card-picker" data-index="daily">
+            <input type="text" class="card-search" placeholder="搜索牌名、英文或编号（如 愚者、fool、0）" autocomplete="off">
+            <div class="quick-picks" data-for="daily"></div>
+            <select name="card_id" class="card-select" required>
+                <option value="">选择今日之牌...</option>
+                {% for card in cards %}
+                <option value="{{ card.id }}"
+                        data-image="{{ card.image_url }}"
+                        data-search="{{ card.name_zh }} {{ card.name_en }} {{ card.id }} {{ card.number }}{% if card.suit %} {{ card.suit }}{% endif %}"
+                        {% if today_entry and today_entry.card_id == card.id %}selected{% endif %}>
+                    {{ card.name_zh }} ({{ card.name_en }})
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <label class="reversed-check-label">
+            <input type="checkbox" name="is_reversed" value="1" class="reversed-check"
+                   {% if today_entry and today_entry.is_reversed %}checked{% endif %}> 逆位
+        </label>
+        <textarea name="notes" rows="3" class="question-input" placeholder="今日感受、领悟或留给自己的一句话...">{{ today_entry.notes if today_entry else '' }}</textarea>
+        <button type="submit" class="btn btn-primary">{{ '更新今日记录' if today_entry else '保存今日记录' }}</button>
+    </form>
+    <div class="card-preview daily-preview" id="preview-daily"></div>
+</div>
+
+{% if entries %}
+<h2>练习时间线</h2>
+<div class="daily-timeline">
+    {% for entry in entries %}
+    {% if not today_entry or entry.id != today_entry.id %}
+    {% set card = card_map.get(entry.card_id) %}
+    <div class="daily-timeline-item">
+        <span class="daily-date">{{ entry.entry_date }}</span>
+        <div class="daily-timeline-card">
+            {% if card %}{{ card_face(card, entry.is_reversed, 'xs') }}{% endif %}
+            <div>
+                <strong>{{ card.name_zh if card else entry.card_id }}</strong>
+                <span class="orientation-badge {% if entry.is_reversed %}reversed{% else %}upright{% endif %}">
+                    {{ '逆位' if entry.is_reversed else '正位' }}
+                </span>
+                {% if entry.notes %}<p class="daily-notes-sm">{{ entry.notes }}</p>{% endif %}
+            </div>
+        </div>
+        <form method="post" action="/daily/{{ entry.id }}/delete" class="daily-delete-form"
+              onsubmit="return confirm('删除这条记录？')">
+            <button type="submit" class="btn-text">删除</button>
+        </form>
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/reading.js?v=5"></script>
+{% endblock %}

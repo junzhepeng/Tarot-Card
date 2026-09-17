@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}解读指南 - 星谕{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>解读指南</h1>
+    <p class="page-desc">离线查阅花色体系、数字结构、宫廷牌与常用术语</p>
+</div>
+
+<h2>四花色体系</h2>
+<div class="guide-grid">
+    {% for suit in guide.suits %}
+    <div class="guide-card">
+        <h3>{{ suit.name }} <span class="guide-element">{{ suit.element }}</span></h3>
+        <p>{{ suit.theme }}</p>
+        <div class="keywords">
+            {% for kw in suit.keywords %}
+            <span class="tag">{{ kw }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<h2>数字牌结构</h2>
+<div class="guide-table-wrap">
+    <table class="guide-table">
+        <thead><tr><th>数字</th><th>含义</th></tr></thead>
+        <tbody>
+            {% for num in guide.numbers %}
+            <tr><td>{{ num.number }}</td><td>{{ num.meaning }}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<h2>宫廷牌</h2>
+<div class="guide-grid guide-grid-sm">
+    {% for court in guide.court_cards %}
+    <div class="guide-card">
+        <h3>{{ court.rank }}</h3>
+        <p>{{ court.meaning }}</p>
+    </div>
+    {% endfor %}
+</div>
+
+<h2>术语表</h2>
+<div class="term-list">
+    {% for item in guide.terms %}
+    <div class="term-item">
+        <dt>{{ item.term }}</dt>
+        <dd>{{ item.definition }}</dd>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

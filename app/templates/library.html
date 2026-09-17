@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_card_face.html" import card_face %}
 {% block title %}牌义库 - 塔罗解牌助手{% endblock %}
 {% block content %}
 <div class="page-header">
@@ -26,6 +27,7 @@
 <div class="card-grid">
     {% for card in cards %}
     <a href="/library/{{ card.id }}" class="card-item">
+        {{ card_face(card, false, 'xs') }}
         <h3>{{ card.name_zh }}</h3>
         <p class="card-en">{{ card.name_en }}</p>
         <div class="keywords">

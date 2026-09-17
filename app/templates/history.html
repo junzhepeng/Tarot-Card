@@ -1,10 +1,33 @@
 {% extends "base.html" %}
 {% block title %}历史记录 - 塔罗解牌助手{% endblock %}
 {% block content %}
+{% set reading_categories = reading_categories|default({}) %}
+{% set outcome_statuses = outcome_statuses|default({}) %}
 <div class="page-header">
     <h1>占卜历史</h1>
-    <p class="page-desc">回顾过往的占卜记录与笔记</p>
+    <p class="page-desc">回顾过往的占卜记录，追踪应验情况</p>
+    <a href="/compare" class="btn btn-secondary btn-sm" style="margin-top:0.8rem;">占卜对比</a>
 </div>
+
+<form method="get" action="/history" class="filter-bar history-filters">
+    <input type="text" name="q" value="{{ q }}" placeholder="搜索问题..." class="search-input">
+    <select name="category" class="form-input filter-select">
+        <option value="">全部分类</option>
+        {% for key, label in reading_categories.items() if key %}
+        <option value="{{ key }}" {% if category == key %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+    </select>
+    <select name="outcome_status" class="form-input filter-select">
+        <option value="">全部状态</option>
+        {% for key, label in outcome_statuses.items() %}
+        <option value="{{ key }}" {% if outcome_status == key %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-secondary btn-sm">筛选</button>
+    {% if q or category or outcome_status %}
+    <a href="/history" class="btn btn-ghost btn-sm">清除</a>
+    {% endif %}
+</form>
 
 {% if readings %}
 <div class="history-list">
@@ -13,14 +36,22 @@
         <div class="history-meta">
             <span class="history-date">{{ r.created_at }}</span>
             <span class="tag">{{ spread_map.get(r.spread_id).name_zh if spread_map.get(r.spread_id) else r.spread_id }}</span>
+            {% if r.category %}
+            <span class="tag tag-category">{{ reading_categories.get(r.category, r.category) }}</span>
+            {% endif %}
+            <span class="outcome-badge outcome-{{ r.outcome_status }}">
+                {{ outcome_statuses.get(r.outcome_status, r.outcome_status) }}
+            </span>
         </div>
         <h3>{{ r.question }}</h3>
         <div class="history-cards">
-            {% for c in r.cards %}
+            {% for c in r.spread_cards %}
             <span class="mini-card">{{ card_map.get(c.card_id).name_zh if card_map.get(c.card_id) else c.card_id }}{% if c.is_reversed %} ↓{% endif %}</span>
             {% endfor %}
         </div>
-        {% if r.notes %}
+        {% if r.outcome_notes %}
+        <p class="history-notes"><strong>回顾：</strong>{{ r.outcome_notes[:80] }}{% if r.outcome_notes|length > 80 %}...{% endif %}</p>
+        {% elif r.notes %}
         <p class="history-notes">{{ r.notes[:80] }}{% if r.notes|length > 80 %}...{% endif %}</p>
         {% endif %}
     </a>
@@ -28,7 +59,7 @@
 </div>
 {% else %}
 <div class="empty-state">
-    <p>还没有占卜记录。</p>
+    <p>{% if q or category or outcome_status %}没有符合条件的记录。{% else %}还没有占卜记录。{% endif %}</p>
     <a href="/reading/new" class="btn btn-primary">开始第一次解读</a>
 </div>
 {% endif %}

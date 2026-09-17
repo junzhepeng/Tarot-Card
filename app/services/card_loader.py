@@ -35,6 +35,7 @@ def load_cards() -> list[Card]:
             reversed_keywords=item["reversed_keywords"],
             upright_meaning=item["upright_meaning"],
             reversed_meaning=item["reversed_meaning"],
+            image_path=item.get("image_path", f"/static/cards/{item['id']}.jpg"),
         )
         for item in raw
     ]
@@ -48,31 +49,46 @@ def get_card(card_id: str) -> Card | None:
     return _cards_by_id.get(card_id)
 
 
+def _parse_spread_item(item: dict) -> Spread:
+    positions = [
+        Position(index=p["index"], label=p["label"], hint=p["hint"])
+        for p in item["positions"]
+    ]
+    return Spread(
+        id=item["id"],
+        name_zh=item["name_zh"],
+        category=item["category"],
+        card_count=item["card_count"],
+        description=item.get("description", ""),
+        positions=positions,
+        tips=item["tips"],
+        layout=item["layout"],
+    )
+
+
+def load_preset_spreads() -> list[Spread]:
+    raw = _load_json("spreads.json")
+    return [_parse_spread_item(item) for item in raw]
+
+
 def load_spreads() -> list[Spread]:
     global _spreads
     if _spreads is not None:
         return _spreads
-    raw = _load_json("spreads.json")
-    _spreads = []
-    for item in raw:
-        positions = [
-            Position(index=p["index"], label=p["label"], hint=p["hint"])
-            for p in item["positions"]
-        ]
-        _spreads.append(
-            Spread(
-                id=item["id"],
-                name_zh=item["name_zh"],
-                category=item["category"],
-                card_count=item["card_count"],
-                description=item.get("description", ""),
-                positions=positions,
-                tips=item["tips"],
-                layout=item["layout"],
-            )
-        )
+    from app.services.spread_store import load_custom_spreads
+
+    _spreads = load_preset_spreads() + load_custom_spreads()
     return _spreads
 
 
 def get_spread(spread_id: str) -> Spread | None:
+    if spread_id.startswith("custom-"):
+        from app.services.spread_store import get_custom_spread
+
+        return get_custom_spread(spread_id)
     return next((s for s in load_spreads() if s.id == spread_id), None)
+
+
+def invalidate_spread_cache() -> None:
+    global _spreads
+    _spreads = None

@@ -18,6 +18,7 @@ class Card:
     reversed_keywords: list[str]
     upright_meaning: str
     reversed_meaning: str
+    image_path: str = ""
 
     @property
     def display_name(self) -> str:
@@ -26,3 +27,7 @@ class Card:
     @property
     def is_court(self) -> bool:
         return self.rank in ("page", "knight", "queen", "king")
+
+    @property
+    def image_url(self) -> str:
+        return self.image_path or f"/static/cards/{self.id}.jpg"

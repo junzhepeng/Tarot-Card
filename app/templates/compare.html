@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% from "_card_face.html" import card_face %}
+{% block title %}占卜对比 - 星谕{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>占卜对比</h1>
+    <p class="page-desc">选择两次历史记录，左右对照牌面变化</p>
+</div>
+
+<form method="get" action="/compare" class="compare-form filter-bar">
+    <select name="a" class="form-input filter-select">
+        <option value="">选择记录 A...</option>
+        {% for r in readings %}
+        <option value="{{ r.id }}" {% if reading_a and reading_a.id == r.id %}selected{% endif %}>
+            #{{ r.id }} · {{ r.created_at }} · {{ r.question[:30] }}{% if r.question|length > 30 %}...{% endif %}
+        </option>
+        {% endfor %}
+    </select>
+    <select name="b" class="form-input filter-select">
+        <option value="">选择记录 B...</option>
+        {% for r in readings %}
+        <option value="{{ r.id }}" {% if reading_b and reading_b.id == r.id %}selected{% endif %}>
+            #{{ r.id }} · {{ r.created_at }} · {{ r.question[:30] }}{% if r.question|length > 30 %}...{% endif %}
+        </option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-primary btn-sm">对比</button>
+</form>
+
+{% if reading_a and reading_b %}
+<div class="compare-panel">
+    {% for label, record, spread in [('记录 A', reading_a, spread_a), ('记录 B', reading_b, spread_b)] %}
+    <div class="compare-column">
+        <h2>{{ label }}</h2>
+        <p class="compare-meta">{{ record.created_at }} · {{ spread.name_zh if spread else record.spread_id }}</p>
+        <div class="question-box"><strong>问题：</strong>{{ record.question }}</div>
+        <div class="compare-cards">
+            {% for c in record.spread_cards %}
+            {% set card = card_map.get(c.card_id) %}
+            <div class="compare-card-item">
+                {% if card %}{{ card_face(card, c.is_reversed, 'sm', true) }}{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% if record.outcome_notes %}
+        <p class="compare-outcome"><strong>回顾：</strong>{{ record.outcome_notes }}</p>
+        {% endif %}
+        <a href="/reading/{{ record.id }}" class="btn btn-secondary btn-sm">查看完整解读</a>
+    </div>
+    {% endfor %}
+</div>
+
+{% if common_cards %}
+<div class="tips-box">
+    <h3>重复出现的牌</h3>
+    <p>{% for name in common_cards %}{{ name }}{% if not loop.last %}、{% endif %}{% endfor %} — 表示该能量在两次占卜中持续存在。</p>
+</div>
+{% endif %}
+{% elif not readings %}
+<div class="empty-state">
+    <p>至少需要两次占卜记录才能对比。</p>
+    <a href="/reading/new" class="btn btn-primary">开始解读</a>
+</div>
+{% endif %}
+{% endblock %}

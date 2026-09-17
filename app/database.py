@@ -10,6 +10,65 @@ def get_connection() -> sqlite3.Connection:
     return conn
 
 
+def _column_exists(conn: sqlite3.Connection, table: str, column: str) -> bool:
+    rows = conn.execute(f"PRAGMA table_info({table})").fetchall()
+    return any(row["name"] == column for row in rows)
+
+
+def _migrate_reading_cards(conn: sqlite3.Connection) -> None:
+    if not _column_exists(conn, "reading_cards", "card_type"):
+        conn.execute(
+            "ALTER TABLE reading_cards ADD COLUMN card_type TEXT NOT NULL DEFAULT 'spread'"
+        )
+    if not _column_exists(conn, "reading_cards", "clarifies_position"):
+        conn.execute("ALTER TABLE reading_cards ADD COLUMN clarifies_position INTEGER")
+
+
+def _migrate_daily_cards(conn: sqlite3.Connection) -> None:
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS daily_cards (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            entry_date TEXT NOT NULL UNIQUE,
+            card_id TEXT NOT NULL,
+            is_reversed INTEGER NOT NULL DEFAULT 0,
+            notes TEXT DEFAULT '',
+            created_at TEXT NOT NULL
+        )
+        """
+    )
+
+
+def _migrate_custom_spreads(conn: sqlite3.Connection) -> None:
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS custom_spreads (
+            id TEXT PRIMARY KEY,
+            name_zh TEXT NOT NULL,
+            description TEXT DEFAULT '',
+            card_count INTEGER NOT NULL,
+            positions_json TEXT NOT NULL,
+            layout_json TEXT NOT NULL,
+            tips TEXT DEFAULT '',
+            created_at TEXT NOT NULL
+        )
+        """
+    )
+
+
+def _migrate_readings(conn: sqlite3.Connection) -> None:
+    if not _column_exists(conn, "readings", "category"):
+        conn.execute("ALTER TABLE readings ADD COLUMN category TEXT NOT NULL DEFAULT ''")
+    if not _column_exists(conn, "readings", "outcome_status"):
+        conn.execute(
+            "ALTER TABLE readings ADD COLUMN outcome_status TEXT NOT NULL DEFAULT 'pending'"
+        )
+    if not _column_exists(conn, "readings", "outcome_notes"):
+        conn.execute("ALTER TABLE readings ADD COLUMN outcome_notes TEXT NOT NULL DEFAULT ''")
+    if not _column_exists(conn, "readings", "reviewed_at"):
+        conn.execute("ALTER TABLE readings ADD COLUMN reviewed_at TEXT")
+
+
 def init_db() -> None:
     conn = get_connection()
     try:
@@ -21,7 +80,11 @@ def init_db() -> None:
                 spread_id TEXT NOT NULL,
                 created_at TEXT NOT NULL,
                 notes TEXT DEFAULT '',
-                ai_summary TEXT
+                ai_summary TEXT,
+                category TEXT NOT NULL DEFAULT '',
+                outcome_status TEXT NOT NULL DEFAULT 'pending',
+                outcome_notes TEXT NOT NULL DEFAULT '',
+                reviewed_at TEXT
             );
 
             CREATE TABLE IF NOT EXISTS reading_cards (
@@ -30,6 +93,8 @@ def init_db() -> None:
                 position_index INTEGER NOT NULL,
                 card_id TEXT NOT NULL,
                 is_reversed INTEGER NOT NULL DEFAULT 0,
+                card_type TEXT NOT NULL DEFAULT 'spread',
+                clarifies_position INTEGER,
                 FOREIGN KEY (reading_id) REFERENCES readings(id) ON DELETE CASCADE
             );
 
@@ -39,6 +104,10 @@ def init_db() -> None:
             );
             """
         )
+        _migrate_reading_cards(conn)
+        _migrate_readings(conn)
+        _migrate_custom_spreads(conn)
+        _migrate_daily_cards(conn)
         conn.commit()
     finally:
         conn.close()

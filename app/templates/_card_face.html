@@ -1,0 +1,24 @@
+{% macro card_face(card, reversed=false, size='md', show_label=false, label='') %}
+{% set sizes = {'xs': (52, 78), 'sm': (80, 120), 'md': (120, 180), 'lg': (200, 300)} %}
+{% set w, h = sizes.get(size, sizes['md']) %}
+<div class="card-face card-face-{{ size }}{% if reversed %} is-reversed{% endif %}">
+    {% if card %}
+    <div class="card-face-inner" style="width:{{ w }}px;height:{{ h }}px">
+        <img src="{{ card.image_url }}" alt="{{ card.name_zh }}"
+             class="card-face-img" width="{{ w }}" height="{{ h }}"
+             loading="lazy"
+             onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\'card-face-placeholder\'><span>{{ card.name_zh }}</span></div>'">
+    </div>
+    {% if show_label or label %}
+    <div class="card-face-label">
+        {% if label %}{{ label }}{% else %}{{ card.name_zh }}{% endif %}
+        {% if reversed %}<span class="card-face-orient">逆位</span>{% endif %}
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="card-face-inner" style="width:{{ w }}px;height:{{ h }}px">
+        <div class="card-face-placeholder"><span>?</span></div>
+    </div>
+    {% endif %}
+</div>
+{% endmacro %}

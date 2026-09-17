@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}创建自定义牌阵 - 星谕{% endblock %}
+{% block content %}
+<a href="/spreads" class="back-link">← 返回牌阵库</a>
+<div class="page-header">
+    <h1>创建自定义牌阵</h1>
+    <p class="page-desc">自定义坑位名称与含义，保存后可用于录牌解读</p>
+</div>
+
+{% if error %}
+<div class="field-error show" style="display:flex;"><span>请填写牌阵名称，并至少添加 2 个坑位。</span></div>
+{% endif %}
+
+<form method="post" action="/spreads/builder" class="builder-form" id="builder-form">
+    <div class="form-group">
+        <label for="name_zh">牌阵名称</label>
+        <input type="text" id="name_zh" name="name_zh" class="form-input" required placeholder="如：我的三牌阵">
+    </div>
+    <div class="form-group">
+        <label for="description">描述</label>
+        <input type="text" id="description" name="description" class="form-input" placeholder="适用场景说明">
+    </div>
+    <div class="form-group">
+        <label for="tips">解读技巧</label>
+        <textarea id="tips" name="tips" rows="2" class="question-input" placeholder="解读此牌阵时的注意事项"></textarea>
+    </div>
+
+    <h2>坑位设置</h2>
+    <div id="position-rows">
+        {% for i in range(3) %}
+        <div class="builder-position-row">
+            <span class="position-num">{{ i + 1 }}</span>
+            <input type="text" name="label" class="form-input" placeholder="坑位名称（如：过去）">
+            <input type="text" name="hint" class="form-input" placeholder="坑位含义提示">
+        </div>
+        {% endfor %}
+    </div>
+    <button type="button" class="btn btn-secondary btn-sm" id="add-position">+ 添加坑位</button>
+
+    <div style="margin-top:1.5rem;">
+        <button type="submit" class="btn btn-primary">保存牌阵</button>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('add-position')?.addEventListener('click', () => {
+    const container = document.getElementById('position-rows');
+    const count = container.children.length + 1;
+    const row = document.createElement('div');
+    row.className = 'builder-position-row';
+    row.innerHTML = `
+        <span class="position-num">${count}</span>
+        <input type="text" name="label" class="form-input" placeholder="坑位名称">
+        <input type="text" name="hint" class="form-input" placeholder="坑位含义提示">`;
+    container.appendChild(row);
+});
+</script>
+{% endblock %}

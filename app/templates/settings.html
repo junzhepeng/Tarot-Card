@@ -3,10 +3,20 @@
 {% block content %}
 <div class="page-header">
     <h1>设置</h1>
-    <p class="page-desc">配置可选的 AI 深度解读功能（OpenAI 兼容 API）</p>
+    <p class="page-desc">配置 AI 解读与数据管理</p>
 </div>
 
+{% if restored %}
+<div class="tips-box" style="border-color:rgba(126,207,176,0.4);">
+    <p>备份恢复成功！共导入 {{ restored }} 条新数据。</p>
+</div>
+{% endif %}
+{% if restore_error %}
+<div class="field-error show" style="display:flex;"><span>备份文件无效或恢复失败，请检查文件格式。</span></div>
+{% endif %}
+
 <form method="post" action="/settings" class="settings-form">
+    <h2>AI 深度解读</h2>
     <div class="form-group">
         <label for="api_base_url">API Base URL</label>
         <input type="text" id="api_base_url" name="api_base_url" value="{{ api_base_url }}"
@@ -27,12 +37,25 @@
     <button type="submit" class="btn btn-primary">保存设置</button>
 </form>
 
+<div class="backup-section">
+    <h2>数据备份与恢复</h2>
+    <p class="page-desc">导出全部占卜记录、自定义牌阵与设置，换机时可恢复。</p>
+    <div class="backup-actions">
+        <a href="/api/backup" class="btn btn-secondary" download>导出备份 (JSON)</a>
+    </div>
+    <form method="post" action="/settings/restore" enctype="multipart/form-data" class="restore-form">
+        <input type="file" name="file" accept=".json" required class="form-input">
+        <button type="submit" class="btn btn-secondary">导入备份</button>
+    </form>
+</div>
+
 <div class="tips-box" style="margin-top: 2rem;">
     <h3>说明</h3>
     <ul>
         <li>不配置 AI 时，程序仍可使用模板解读功能，完全离线可用。</li>
         <li>配置后可在解读结果页点击「生成 AI 深度解读」获取更详细的分析。</li>
         <li>所有数据（包括 API Key）均存储在本地 SQLite 数据库中。</li>
+        <li>导入备份时，已存在的记录 ID 不会重复导入。</li>
     </ul>
 </div>
 {% endblock %}

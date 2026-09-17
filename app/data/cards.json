@@ -8,6 +8,7 @@
     "number": 0,
     "rank": null,
     "element": "风",
+    "image_path": "/static/cards/the-fool.jpg",
     "upright_keywords": [
       "新开始",
       "冒险",
@@ -32,6 +33,7 @@
     "number": 1,
     "rank": null,
     "element": "风",
+    "image_path": "/static/cards/the-magician.jpg",
     "upright_keywords": [
       "创造力",
       "意志力",
@@ -56,6 +58,7 @@
     "number": 2,
     "rank": null,
     "element": "水",
+    "image_path": "/static/cards/the-high-priestess.jpg",
     "upright_keywords": [
       "直觉",
       "神秘",
@@ -80,6 +83,7 @@
     "number": 3,
     "rank": null,
     "element": "土",
+    "image_path": "/static/cards/the-empress.jpg",
     "upright_keywords": [
       "丰饶",
       "滋养",
@@ -104,6 +108,7 @@
     "number": 4,
     "rank": null,
     "element": "火",
+    "image_path": "/static/cards/the-emperor.jpg",
     "upright_keywords": [
       "权威",
       "结构",
@@ -128,6 +133,7 @@
     "number": 5,
     "rank": null,
     "element": "土",
+    "image_path": "/static/cards/the-hierophant.jpg",
     "upright_keywords": [
       "传统",
       "信仰",
@@ -152,6 +158,7 @@
     "number": 6,
     "rank": null,
     "element": "风",
+    "image_path": "/static/cards/the-lovers.jpg",
     "upright_keywords": [
       "爱情",
       "选择",
@@ -176,6 +183,7 @@
     "number": 7,
     "rank": null,
     "element": "水",
+    "image_path": "/static/cards/the-chariot.jpg",
     "upright_keywords": [
       "意志力",
       "胜利",
@@ -200,6 +208,7 @@
     "number": 8,
     "rank": null,
     "element": "火",
+    "image_path": "/static/cards/strength.jpg",
     "upright_keywords": [
       "勇气",
       "耐心",
@@ -224,6 +233,7 @@
     "number": 9,
     "rank": null,
     "element": "土",
+    "image_path": "/static/cards/the-hermit.jpg",
     "upright_keywords": [
       "内省",
       "独处",
@@ -248,6 +258,7 @@
     "number": 10,
     "rank": null,
     "element": "火",
+    "image_path": "/static/cards/wheel-of-fortune.jpg",
     "upright_keywords": [
       "命运",
       "转折",
@@ -272,6 +283,7 @@
     "number": 11,
     "rank": null,
     "element": "风",
+    "image_path": "/static/cards/justice.jpg",
     "upright_keywords": [
       "公正",
       "真相",
@@ -296,6 +308,7 @@
     "number": 12,
     "rank": null,
     "element": "水",
+    "image_path": "/static/cards/the-hanged-man.jpg",
     "upright_keywords": [
       "牺牲",
       "等待",
@@ -320,6 +333,7 @@
     "number": 13,
     "rank": null,
     "element": "水",
+    "image_path": "/static/cards/death.jpg",
     "upright_keywords": [
       "转变",
       "结束",
@@ -344,6 +358,7 @@
     "number": 14,
     "rank": null,
     "element": "火",
+    "image_path": "/static/cards/temperance.jpg",
     "upright_keywords": [
       "平衡",
       "耐心",
@@ -368,6 +383,7 @@
     "number": 15,
     "rank": null,
     "element": "土",
+    "image_path": "/static/cards/the-devil.jpg",
     "upright_keywords": [
       "束缚",
       "欲望",
@@ -392,6 +408,7 @@
     "number": 16,
     "rank": null,
     "element": "火",
+    "image_path": "/static/cards/the-tower.jpg",
     "upright_keywords": [
       "突变",
       "崩塌",
@@ -416,6 +433,7 @@
     "number": 17,
     "rank": null,
     "element": "风",
+    "image_path": "/static/cards/the-star.jpg",
     "upright_keywords": [
       "希望",
       "灵感",
@@ -440,6 +458,7 @@
     "number": 18,
     "rank": null,
     "element": "水",
+    "image_path": "/static/cards/the-moon.jpg",
     "upright_keywords": [
       "幻觉",
       "直觉",
@@ -464,6 +483,7 @@
     "number": 19,
     "rank": null,
     "element": "火",
+    "image_path": "/static/cards/the-sun.jpg",
     "upright_keywords": [
       "成功",
       "喜悦",
@@ -488,6 +508,7 @@
     "number": 20,
     "rank": null,
     "element": "火",
+    "image_path": "/static/cards/judgement.jpg",
     "upright_keywords": [
       "觉醒",
       "召唤",
@@ -512,6 +533,7 @@
     "number": 21,
     "rank": null,
     "element": "土",
+    "image_path": "/static/cards/the-world.jpg",
     "upright_keywords": [
       "完成",
       "成就",
@@ -536,6 +558,7 @@
     "number": 1,
     "rank": null,
     "element": "火",
+    "image_path": "/static/cards/wands-ace.jpg",
     "upright_keywords": [
       "灵感",
       "新机会",
@@ -558,6 +581,7 @@
     "number": 2,
     "rank": null,
     "element": "火",
+    "image_path": "/static/cards/wands-two.jpg",
     "upright_keywords": [
       "计划",
       "决定",
@@ -580,6 +604,7 @@
     "number": 3,
     "rank": null,
     "element": "火",
+    "image_path": "/static/cards/wands-three.jpg",
     "upright_keywords": [
       "扩张",
       "远见",
@@ -602,6 +627,7 @@
     "number": 4,
     "rank": null,
     "element": "火",
+    "image_path": "/static/cards/wands-four.jpg",
     "upright_keywords": [
       "庆祝",
       "和谐",
@@ -624,6 +650,7 @@
     "number": 5,
     "rank": null,
     "element": "火",
+    "image_path": "/static/cards/wands-five.jpg",
     "upright_keywords": [
       "冲突",
       "竞争",
@@ -646,6 +673,7 @@
     "number": 6,
     "rank": null,
     "element": "火",
+    "image_path": "/static/cards/wands-six.jpg",
     "upright_keywords": [
       "胜利",
       "认可",
@@ -668,6 +696,7 @@
     "number": 7,
     "rank": null,
     "element": "火",
+    "image_path": "/static/cards/wands-seven.jpg",
     "upright_keywords": [
       "挑战",
       "坚持",
@@ -690,6 +719,7 @@
     "number": 8,
     "rank": null,
     "element": "火",
+    "image_path": "/static/cards/wands-eight.jpg",
     "upright_keywords": [
       "迅速行动",
       "消息",
@@ -712,6 +742,7 @@
     "number": 9,
     "rank": null,
     "element": "火",
+    "image_path": "/static/cards/wands-nine.jpg",
     "upright_keywords": [
       "坚韧",
       "勇气",
@@ -734,6 +765,7 @@
     "number": 10,
     "rank": null,
     "element": "火",
+    "image_path": "/static/cards/wands-ten.jpg",
     "upright_keywords": [
       "负担",
       "责任",
@@ -756,6 +788,7 @@
     "number": 11,
     "rank": "page",
     "element": "火",
+    "image_path": "/static/cards/wands-page.jpg",
     "upright_keywords": [
       "探索",
       "热情",
@@ -778,6 +811,7 @@
     "number": 12,
     "rank": "knight",
     "element": "火",
+    "image_path": "/static/cards/wands-knight.jpg",
     "upright_keywords": [
       "行动",
       "冒险",
@@ -800,6 +834,7 @@
     "number": 13,
     "rank": "queen",
     "element": "火",
+    "image_path": "/static/cards/wands-queen.jpg",
     "upright_keywords": [
       "自信",
       "独立",
@@ -822,6 +857,7 @@
     "number": 14,
     "rank": "king",
     "element": "火",
+    "image_path": "/static/cards/wands-king.jpg",
     "upright_keywords": [
       "领导力",
       "远见",
@@ -844,6 +880,7 @@
     "number": 1,
     "rank": null,
     "element": "水",
+    "image_path": "/static/cards/cups-ace.jpg",
     "upright_keywords": [
       "新感情",
       "直觉",
@@ -866,6 +903,7 @@
     "number": 2,
     "rank": null,
     "element": "水",
+    "image_path": "/static/cards/cups-two.jpg",
     "upright_keywords": [
       "伙伴关系",
       "吸引",
@@ -888,6 +926,7 @@
     "number": 3,
     "rank": null,
     "element": "水",
+    "image_path": "/static/cards/cups-three.jpg",
     "upright_keywords": [
       "庆祝",
       "友谊",
@@ -910,6 +949,7 @@
     "number": 4,
     "rank": null,
     "element": "水",
+    "image_path": "/static/cards/cups-four.jpg",
     "upright_keywords": [
       "沉思",
       "不满",
@@ -932,6 +972,7 @@
     "number": 5,
     "rank": null,
     "element": "水",
+    "image_path": "/static/cards/cups-five.jpg",
     "upright_keywords": [
       "失落",
       "悲伤",
@@ -954,6 +995,7 @@
     "number": 6,
     "rank": null,
     "element": "水",
+    "image_path": "/static/cards/cups-six.jpg",
     "upright_keywords": [
       "怀旧",
       "童年",
@@ -976,6 +1018,7 @@
     "number": 7,
     "rank": null,
     "element": "水",
+    "image_path": "/static/cards/cups-seven.jpg",
     "upright_keywords": [
       "选择",
       "幻想",
@@ -998,6 +1041,7 @@
     "number": 8,
     "rank": null,
     "element": "水",
+    "image_path": "/static/cards/cups-eight.jpg",
     "upright_keywords": [
       "放弃",
       "放手",
@@ -1020,6 +1064,7 @@
     "number": 9,
     "rank": null,
     "element": "水",
+    "image_path": "/static/cards/cups-nine.jpg",
     "upright_keywords": [
       "满足",
       "愿望实现",
@@ -1042,6 +1087,7 @@
     "number": 10,
     "rank": null,
     "element": "水",
+    "image_path": "/static/cards/cups-ten.jpg",
     "upright_keywords": [
       "和谐",
       "家庭",
@@ -1064,6 +1110,7 @@
     "number": 11,
     "rank": "page",
     "element": "水",
+    "image_path": "/static/cards/cups-page.jpg",
     "upright_keywords": [
       "直觉",
       "创意",
@@ -1086,6 +1133,7 @@
     "number": 12,
     "rank": "knight",
     "element": "水",
+    "image_path": "/static/cards/cups-knight.jpg",
     "upright_keywords": [
       "浪漫",
       "魅力",
@@ -1108,6 +1156,7 @@
     "number": 13,
     "rank": "queen",
     "element": "水",
+    "image_path": "/static/cards/cups-queen.jpg",
     "upright_keywords": [
       "慈悲",
       "直觉",
@@ -1130,6 +1179,7 @@
     "number": 14,
     "rank": "king",
     "element": "水",
+    "image_path": "/static/cards/cups-king.jpg",
     "upright_keywords": [
       "情感平衡",
       "外交",
@@ -1152,6 +1202,7 @@
     "number": 1,
     "rank": null,
     "element": "风",
+    "image_path": "/static/cards/swords-ace.jpg",
     "upright_keywords": [
       "新想法",
       "清晰",
@@ -1174,6 +1225,7 @@
     "number": 2,
     "rank": null,
     "element": "风",
+    "image_path": "/static/cards/swords-two.jpg",
     "upright_keywords": [
       "僵局",
       "艰难选择",
@@ -1196,6 +1248,7 @@
     "number": 3,
     "rank": null,
     "element": "风",
+    "image_path": "/static/cards/swords-three.jpg",
     "upright_keywords": [
       "心碎",
       "悲伤",
@@ -1218,6 +1271,7 @@
     "number": 4,
     "rank": null,
     "element": "风",
+    "image_path": "/static/cards/swords-four.jpg",
     "upright_keywords": [
       "休息",
       "恢复",
@@ -1240,6 +1294,7 @@
     "number": 5,
     "rank": null,
     "element": "风",
+    "image_path": "/static/cards/swords-five.jpg",
     "upright_keywords": [
       "冲突",
       "失败",
@@ -1262,6 +1317,7 @@
     "number": 6,
     "rank": null,
     "element": "风",
+    "image_path": "/static/cards/swords-six.jpg",
     "upright_keywords": [
       "过渡",
       "离开",
@@ -1284,6 +1340,7 @@
     "number": 7,
     "rank": null,
     "element": "风",
+    "image_path": "/static/cards/swords-seven.jpg",
     "upright_keywords": [
       "欺骗",
       "策略",
@@ -1306,6 +1363,7 @@
     "number": 8,
     "rank": null,
     "element": "风",
+    "image_path": "/static/cards/swords-eight.jpg",
     "upright_keywords": [
       "限制",
       "困境",
@@ -1328,6 +1386,7 @@
     "number": 9,
     "rank": null,
     "element": "风",
+    "image_path": "/static/cards/swords-nine.jpg",
     "upright_keywords": [
       "焦虑",
       "噩梦",
@@ -1350,6 +1409,7 @@
     "number": 10,
     "rank": null,
     "element": "风",
+    "image_path": "/static/cards/swords-ten.jpg",
     "upright_keywords": [
       "结束",
       "痛苦终结",
@@ -1372,6 +1432,7 @@
     "number": 11,
     "rank": "page",
     "element": "风",
+    "image_path": "/static/cards/swords-page.jpg",
     "upright_keywords": [
       "好奇",
       "警觉",
@@ -1394,6 +1455,7 @@
     "number": 12,
     "rank": "knight",
     "element": "风",
+    "image_path": "/static/cards/swords-knight.jpg",
     "upright_keywords": [
       "行动",
       "直接",
@@ -1416,6 +1478,7 @@
     "number": 13,
     "rank": "queen",
     "element": "风",
+    "image_path": "/static/cards/swords-queen.jpg",
     "upright_keywords": [
       "独立",
       "清晰",
@@ -1438,6 +1501,7 @@
     "number": 14,
     "rank": "king",
     "element": "风",
+    "image_path": "/static/cards/swords-king.jpg",
     "upright_keywords": [
       "权威",
       "真理",
@@ -1460,6 +1524,7 @@
     "number": 1,
     "rank": null,
     "element": "土",
+    "image_path": "/static/cards/pentacles-ace.jpg",
     "upright_keywords": [
       "新机会",
       "繁荣",
@@ -1482,6 +1547,7 @@
     "number": 2,
     "rank": null,
     "element": "土",
+    "image_path": "/static/cards/pentacles-two.jpg",
     "upright_keywords": [
       "平衡",
       "适应",
@@ -1504,6 +1570,7 @@
     "number": 3,
     "rank": null,
     "element": "土",
+    "image_path": "/static/cards/pentacles-three.jpg",
     "upright_keywords": [
       "团队合作",
       "技能",
@@ -1526,6 +1593,7 @@
     "number": 4,
     "rank": null,
     "element": "土",
+    "image_path": "/static/cards/pentacles-four.jpg",
     "upright_keywords": [
       "保守",
       "安全",
@@ -1548,6 +1616,7 @@
     "number": 5,
     "rank": null,
     "element": "土",
+    "image_path": "/static/cards/pentacles-five.jpg",
     "upright_keywords": [
       "困难",
       "贫困",
@@ -1570,6 +1639,7 @@
     "number": 6,
     "rank": null,
     "element": "土",
+    "image_path": "/static/cards/pentacles-six.jpg",
     "upright_keywords": [
       "慷慨",
       "分享",
@@ -1592,6 +1662,7 @@
     "number": 7,
     "rank": null,
     "element": "土",
+    "image_path": "/static/cards/pentacles-seven.jpg",
     "upright_keywords": [
       "耐心",
       "投资",
@@ -1614,6 +1685,7 @@
     "number": 8,
     "rank": null,
     "element": "土",
+    "image_path": "/static/cards/pentacles-eight.jpg",
     "upright_keywords": [
       "技能",
       "勤奋",
@@ -1636,6 +1708,7 @@
     "number": 9,
     "rank": null,
     "element": "土",
+    "image_path": "/static/cards/pentacles-nine.jpg",
     "upright_keywords": [
       "独立",
       "富足",
@@ -1658,6 +1731,7 @@
     "number": 10,
     "rank": null,
     "element": "土",
+    "image_path": "/static/cards/pentacles-ten.jpg",
     "upright_keywords": [
       "传承",
       "家族",
@@ -1680,6 +1754,7 @@
     "number": 11,
     "rank": "page",
     "element": "土",
+    "image_path": "/static/cards/pentacles-page.jpg",
     "upright_keywords": [
       "学习",
       "机会",
@@ -1702,6 +1777,7 @@
     "number": 12,
     "rank": "knight",
     "element": "土",
+    "image_path": "/static/cards/pentacles-knight.jpg",
     "upright_keywords": [
       "可靠",
       "勤奋",
@@ -1724,6 +1800,7 @@
     "number": 13,
     "rank": "queen",
     "element": "土",
+    "image_path": "/static/cards/pentacles-queen.jpg",
     "upright_keywords": [
       "务实",
       "滋养",
@@ -1746,6 +1823,7 @@
     "number": 14,
     "rank": "king",
     "element": "土",
+    "image_path": "/static/cards/pentacles-king.jpg",
     "upright_keywords": [
       "成功",
       "安全",

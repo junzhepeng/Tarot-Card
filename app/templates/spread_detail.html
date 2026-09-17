@@ -29,5 +29,13 @@
     <p>{{ spread.tips }}</p>
 </div>
 
-<a href="/reading/new?step=2&spread_id={{ spread.id }}" class="btn btn-primary">使用此牌阵开始解读</a>
+<div class="spread-actions">
+    <a href="/reading/new?step=1&spread_id={{ spread.id }}" class="btn btn-primary">使用此牌阵开始解读</a>
+    {% if is_custom %}
+    <form method="post" action="/spreads/{{ spread.id }}/delete" style="display:inline"
+          onsubmit="return confirm('确定删除此自定义牌阵？')">
+        <button type="submit" class="btn btn-secondary">删除牌阵</button>
+    </form>
+    {% endif %}
+</div>
 {% endblock %}

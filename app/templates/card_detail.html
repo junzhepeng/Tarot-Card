@@ -1,18 +1,27 @@
 {% extends "base.html" %}
+{% from "_card_face.html" import card_face %}
 {% block title %}{{ card.name_zh }} - 牌义库{% endblock %}
 {% block content %}
 <a href="/library" class="back-link">← 返回牌义库</a>
-<div class="page-header">
-    <h1>{{ card.name_zh }}</h1>
-    <p class="card-en">{{ card.name_en }}</p>
-    <div class="meta-tags">
-        <span class="tag">{{ '大阿卡纳' if card.arcana == 'major' else '小阿卡纳' }}</span>
-        {% if card.suit %}
-        <span class="tag">{{ {'wands':'权杖','cups':'圣杯','swords':'宝剑','pentacles':'星币'}[card.suit] }}</span>
-        {% endif %}
-        {% if card.element %}
-        <span class="tag">{{ card.element }}元素</span>
-        {% endif %}
+
+<div class="card-detail-layout">
+    <div class="card-detail-image">
+        {{ card_face(card, false, 'lg', true) }}
+    </div>
+    <div class="card-detail-info">
+        <div class="page-header">
+            <h1>{{ card.name_zh }}</h1>
+            <p class="card-en">{{ card.name_en }}</p>
+            <div class="meta-tags">
+                <span class="tag">{{ '大阿卡纳' if card.arcana == 'major' else '小阿卡纳' }}</span>
+                {% if card.suit %}
+                <span class="tag">{{ {'wands':'权杖','cups':'圣杯','swords':'宝剑','pentacles':'星币'}[card.suit] }}</span>
+                {% endif %}
+                {% if card.element %}
+                <span class="tag">{{ card.element }}元素</span>
+                {% endif %}
+            </div>
+        </div>
     </div>
 </div>
 

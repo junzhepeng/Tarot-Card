@@ -312,6 +312,7 @@ def build_cards() -> list[dict]:
             "id": cid, "name_zh": zh, "name_en": en,
             "arcana": "major", "suit": suit, "number": num, "rank": rank,
             "element": elem,
+            "image_path": f"/static/cards/{cid}.jpg",
             "upright_keywords": uk, "reversed_keywords": rk,
             "upright_meaning": um, "reversed_meaning": rm,
         })
@@ -333,6 +334,7 @@ def build_cards() -> list[dict]:
                 "id": cid, "name_zh": name_zh, "name_en": name_en,
                 "arcana": "minor", "suit": suit_id, "number": num, "rank": None,
                 "element": elem,
+                "image_path": f"/static/cards/{cid}.jpg",
                 "upright_keywords": uk, "reversed_keywords": rk,
                 "upright_meaning": um, "reversed_meaning": rm,
             })
@@ -347,6 +349,7 @@ def build_cards() -> list[dict]:
                 "id": cid, "name_zh": name_zh, "name_en": name_en,
                 "arcana": "minor", "suit": suit_id, "number": rank_num, "rank": rank_id,
                 "element": elem,
+                "image_path": f"/static/cards/{cid}.jpg",
                 "upright_keywords": uk, "reversed_keywords": rk,
                 "upright_meaning": um, "reversed_meaning": rm,
             })

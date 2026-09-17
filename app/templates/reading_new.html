@@ -14,6 +14,9 @@
 <!-- Step 1: Question -->
 <section class="reading-step">
     <h2>设定你的问题</h2>
+    {% if spread %}
+    <div class="question-box"><strong>已选牌阵：</strong>{{ spread.name_zh }}（{{ spread.card_count }} 张牌）</div>
+    {% endif %}
     <div class="tips-box">
         <h3>提问技巧</h3>
         <ul>
@@ -24,13 +27,20 @@
         </ul>
     </div>
     <form method="get" action="/reading/new" id="question-form" novalidate>
+        {% if spread %}
+        <input type="hidden" name="step" value="3">
+        <input type="hidden" name="spread_id" value="{{ spread.id }}">
+        {% else %}
         <input type="hidden" name="step" value="2">
-        <textarea name="question" id="question-input" rows="3" placeholder="输入你的问题..." class="question-input"></textarea>
+        {% endif %}
+        <textarea name="question" id="question-input" rows="3" placeholder="输入你的问题..." class="question-input">{{ question }}</textarea>
         <div class="field-error" id="question-error" role="alert">
             <span class="field-error-icon">☽</span>
             <span>请先写下你想问的问题</span>
         </div>
-        <button type="submit" class="btn btn-primary">下一步：选择牌阵</button>
+        <button type="submit" class="btn btn-primary">
+            {% if spread %}下一步：录入牌面{% else %}下一步：选择牌阵{% endif %}
+        </button>
     </form>
 </section>
 
@@ -58,6 +68,7 @@
     <div class="question-box"><strong>问题：</strong>{{ question }}</div>
     {% endif %}
     <p class="page-desc">牌阵：{{ spread.name_zh }} · 请按坑位顺序填入你线下抽到的牌</p>
+    <p class="page-desc" style="font-size:0.82rem;">提示：可搜索牌名/英文/编号；点击快捷按钮选牌；右键快捷按钮可收藏</p>
 
     <form method="post" action="/reading/submit" id="reading-form" novalidate>
         <input type="hidden" name="question" value="{{ question }}">
@@ -74,17 +85,26 @@
                     </div>
                 </div>
                 <div class="card-select-row">
-                    <select name="card_{{ pos.index }}" class="card-select" data-index="{{ pos.index }}">
-                        <option value="">选择牌...</option>
-                        {% for card in cards %}
-                        <option value="{{ card.id }}">{{ card.name_zh }} ({{ card.name_en }})</option>
-                        {% endfor %}
-                    </select>
+                    <div class="card-picker" data-index="{{ pos.index }}">
+                        <input type="text" class="card-search" placeholder="搜索牌名、英文或编号..." autocomplete="off">
+                        <div class="quick-picks" data-for="{{ pos.index }}"></div>
+                        <select name="card_{{ pos.index }}" class="card-select" data-index="{{ pos.index }}">
+                            <option value="">选择牌...</option>
+                            {% for card in cards %}
+                            <option value="{{ card.id }}"
+                                    data-image="{{ card.image_url }}"
+                                    data-search="{{ card.name_zh }} {{ card.name_en }} {{ card.id }} {{ card.number }}{% if card.suit %} {{ card.suit }}{% endif %}">
+                                {{ card.name_zh }} ({{ card.name_en }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
                     <label class="reversed-toggle">
                         <input type="checkbox" name="reversed_{{ pos.index }}" value="1" class="reversed-check">
                         <span>逆位</span>
                     </label>
                 </div>
+                <div class="card-preview" id="preview-{{ pos.index }}"></div>
             </div>
             {% endfor %}
         </div>
@@ -100,5 +120,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/reading.js"></script>
+<script src="/static/js/reading.js?v=5"></script>
 {% endblock %}

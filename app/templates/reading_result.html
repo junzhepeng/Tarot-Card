@@ -1,140 +1,419 @@
 {% extends "base.html" %}
+
+{% from "_card_face.html" import card_face %}
+
 {% block title %}解读结果 - 塔罗解牌助手{% endblock %}
+
 {% block content %}
+
+{% set card_map = card_map|default({}) %}
+
+{% set clarifiers_by_position = clarifiers_by_position|default({}) %}
+
+{% set reading_categories = reading_categories|default({}) %}
+
+{% set outcome_statuses = outcome_statuses|default({}) %}
+
 <a href="/history" class="back-link">← 返回历史记录</a>
 
+
+
 <div class="result-header">
+
     <h1>解读结果</h1>
+
     <p class="result-meta">
+
         {{ record.created_at }} · {{ spread.name_zh }}
+
         <span class="tag">{{ category_labels.get(spread.category, spread.category) }}</span>
+
     </p>
+
     <div class="question-box">
+
         <strong>问题：</strong>{{ record.question }}
-    </div>
-</div>
 
-<!-- Spread layout visualization -->
-<h2>牌阵布局</h2>
-<div class="spread-layout" style="grid-template-columns: repeat({{ spread.layout.cols }}, 1fr);">
-    {% for pos in spread.positions %}
-    {% set reading = analysis.positions | selectattr('position_index', 'equalto', pos.index) | first %}
-    {% set coord = spread.layout.coords[pos.index] %}
-    <div class="layout-slot" style="grid-column: {{ coord[0] + 1 }}; grid-row: {{ coord[1] + 1 }};">
-        <span class="slot-label">{{ pos.label }}</span>
-        {% if reading %}
-        <div class="slot-card {% if reading.is_reversed %}reversed{% endif %}">
-            <strong>{{ reading.card_name_zh }}</strong>
-            <span class="orientation">{{ '逆位' if reading.is_reversed else '正位' }}</span>
-        </div>
+    </div>
+
+    <div class="result-actions">
+        <a href="/api/reading/{{ record.id }}/export.md" class="btn btn-secondary btn-sm" download>导出 Markdown</a>
+        {% if record.category %}
+        <span class="tag tag-category">{{ reading_categories.get(record.category, record.category) }}</span>
         {% endif %}
+        <span class="outcome-badge outcome-{{ record.outcome_status }}">
+            {{ outcome_statuses.get(record.outcome_status, record.outcome_status) }}
+        </span>
     </div>
-    {% endfor %}
+
 </div>
 
-<!-- L1: Keywords per position -->
+
+
+<h2>牌阵布局</h2>
+
+<div class="spread-layout" style="grid-template-columns: repeat({{ spread.layout.cols }}, 1fr);">
+
+    {% for pos in spread.positions %}
+
+    {% set reading = analysis.positions | selectattr('position_index', 'equalto', pos.index) | first %}
+
+    {% set coord = spread.layout.coords[pos.index] %}
+
+    <div class="layout-slot" style="grid-column: {{ coord[0] + 1 }}; grid-row: {{ coord[1] + 1 }};">
+
+        <span class="slot-label">{{ pos.label }}</span>
+
+        {% if reading and card_map.get(reading.card_id) %}
+
+        {{ card_face(card_map[reading.card_id], reading.is_reversed, 'sm', true) }}
+
+        {% endif %}
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+
+
 <h2>单牌概览</h2>
+
 <div class="position-readings">
+
     {% for pos in analysis.positions %}
+
+    {% set card = card_map.get(pos.card_id) %}
+
     <div class="position-reading-card">
-        <div class="pr-header">
-            <h3>{{ pos.position_label }}：{{ pos.card_name_zh }}</h3>
-            <span class="orientation-badge {% if pos.is_reversed %}reversed{% else %}upright{% endif %}">
-                {{ '逆位' if pos.is_reversed else '正位' }}
-            </span>
+
+        <div class="pr-row">
+
+            {% if card %}{{ card_face(card, pos.is_reversed, 'xs') }}{% endif %}
+
+            <div class="pr-info">
+
+                <div class="pr-header">
+
+                    <h3>{{ pos.position_label }}：{{ pos.card_name_zh }}</h3>
+
+                    <span class="orientation-badge {% if pos.is_reversed %}reversed{% else %}upright{% endif %}">
+
+                        {{ '逆位' if pos.is_reversed else '正位' }}
+
+                    </span>
+
+                </div>
+
+                <div class="keywords">
+
+                    {% for kw in pos.keywords %}
+
+                    <span class="tag">{{ kw }}</span>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
         </div>
-        <div class="keywords">
-            {% for kw in pos.keywords %}
-            <span class="tag">{{ kw }}</span>
-            {% endfor %}
-        </div>
+
     </div>
+
     {% endfor %}
+
 </div>
 
-<!-- L2: Position interpretations -->
+
+
 <h2>坑位解读</h2>
-<div class="interpretation-list">
+
+<div class="interpretation-list" id="interpretation-list" data-reading-id="{{ record.id }}">
+
     {% for pos in analysis.positions %}
-    <div class="interpretation-card">
+
+    {% set card = card_map.get(pos.card_id) %}
+
+    <div class="interpretation-card" id="position-{{ pos.position_index }}" data-position-index="{{ pos.position_index }}">
+
+        <div class="interpretation-header">
+
+            {% if card %}{{ card_face(card, pos.is_reversed, 'xs') }}{% endif %}
+
+            <strong>{{ pos.position_label }} · {{ pos.card_name_zh }}</strong>
+
+        </div>
+
         <pre class="interpretation-text">{{ pos.interpretation }}</pre>
+
+
+
+        <div class="clarifier-list" id="clarifiers-{{ pos.position_index }}">
+
+            {% for cr in clarifiers_by_position.get(pos.position_index, []) %}
+
+            <div class="clarifier-item" data-clarifier-id="{{ cr.id }}">
+
+                <div class="clarifier-header">
+
+                    <span class="clarifier-badge">澄清牌</span>
+
+                    {% set clar_card = card_map.get(cr.clarifier_card_id) %}
+
+                    {% if clar_card %}{{ card_face(clar_card, cr.clarifier_is_reversed, 'xs') }}{% endif %}
+
+                    <strong>{{ cr.clarifier_card_name_zh }}</strong>
+
+                    <span class="orientation-badge {% if cr.clarifier_is_reversed %}reversed{% else %}upright{% endif %}">
+
+                        {{ '逆位' if cr.clarifier_is_reversed else '正位' }}
+
+                    </span>
+
+                    <form method="post" action="/reading/{{ record.id }}/clarifier/delete" class="clarifier-delete-form">
+                        <input type="hidden" name="clarifier_id" value="{{ cr.id }}">
+                        <button type="submit" class="btn-text">删除</button>
+                    </form>
+
+                </div>
+
+                <pre class="interpretation-text clarifier-text">{{ cr.interpretation }}</pre>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+
+
+        <div class="clarifier-form-wrap">
+
+            <button type="button" class="btn btn-secondary btn-sm btn-add-clarifier"
+
+                    data-position-index="{{ pos.position_index }}"
+
+                    data-position-label="{{ pos.position_label }}">
+
+                + 添加澄清牌
+
+            </button>
+
+            <form method="post" action="/reading/{{ record.id }}/clarifier"
+                  class="clarifier-form" id="clarifier-form-{{ pos.position_index }}" style="display:none;">
+                <input type="hidden" name="position_index" value="{{ pos.position_index }}">
+                <p class="clarifier-form-hint">线下再抽 1 张牌，关联「{{ pos.position_label }}」的解读：</p>
+
+                <div class="clarifier-form-row">
+                    <div class="card-picker clarifier-picker">
+                        <input type="text" class="card-search" placeholder="搜索牌名、英文或编号..." autocomplete="off">
+                        <div class="quick-picks"></div>
+                        <select name="card_id" class="clarifier-card-select" required>
+                            <option value="">选择澄清牌...</option>
+                        </select>
+                    </div>
+
+                    <label class="reversed-check-label">
+
+                        <input type="checkbox" name="is_reversed" value="1" class="clarifier-reversed-check"> 逆位
+
+                    </label>
+
+                    <button type="submit" class="btn btn-primary btn-sm">确认</button>
+
+                    <button type="button" class="btn btn-secondary btn-sm btn-cancel-clarifier">取消</button>
+
+                </div>
+
+                <div class="card-preview clarifier-preview"></div>
+
+            </form>
+
+        </div>
+
     </div>
+
     {% endfor %}
+
 </div>
 
-<!-- L3: Narrative -->
+
+
 <h2>整阵叙事</h2>
+
 <div class="narrative-box">
+
     <div class="tips-box">
+
         <h3>解读技巧</h3>
+
         <p>{{ analysis.spread_tips }}</p>
+
     </div>
+
     {% for line in analysis.narrative %}
+
     <p>{{ line }}</p>
+
     {% endfor %}
+
 </div>
 
-<!-- Pattern analysis -->
+
+
 <h2>模式分析</h2>
+
 <div class="pattern-panel">
+
     <div class="pattern-stats">
+
         <div class="pattern-stat">
+
             <span class="stat-num">{{ analysis.patterns.major_count }}</span>
+
             <span class="stat-label">大阿卡纳</span>
+
         </div>
+
         <div class="pattern-stat">
+
             <span class="stat-num">{{ analysis.patterns.minor_count }}</span>
+
             <span class="stat-label">小阿卡纳</span>
+
         </div>
+
         <div class="pattern-stat">
+
             <span class="stat-num">{{ analysis.patterns.upright_count }}</span>
+
             <span class="stat-label">正位</span>
+
         </div>
+
         <div class="pattern-stat">
+
             <span class="stat-num">{{ analysis.patterns.reversed_count }}</span>
+
             <span class="stat-label">逆位</span>
+
         </div>
+
     </div>
+
     {% if analysis.patterns.elements %}
+
     <div class="element-bar">
+
         <h3>元素分布</h3>
+
         {% for elem, count in analysis.patterns.elements.items() %}
+
         <div class="element-item">
+
             <span>{{ elem }}</span>
+
             <div class="bar"><div class="bar-fill" style="width: {{ (count / analysis.positions|length * 100)|int }}%"></div></div>
+
             <span>{{ count }}</span>
+
         </div>
+
         {% endfor %}
+
     </div>
+
     {% endif %}
+
 </div>
 
-<!-- AI reading -->
+
+
 <h2>AI 深度解读</h2>
+
 <div class="ai-section">
+
     {% if record.ai_summary %}
+
     <div class="ai-result" id="ai-result">{{ record.ai_summary }}</div>
+
     {% else %}
+
     <div class="ai-result" id="ai-result" style="display:none;"></div>
+
     {% endif %}
+
     {% if ai_configured %}
+
     <button id="ai-btn" class="btn btn-primary" onclick="requestAI({{ record.id }})">
+
         {% if record.ai_summary %}重新生成 AI 解读{% else %}生成 AI 深度解读{% endif %}
+
     </button>
+
     <span id="ai-loading" style="display:none;">正在生成...</span>
+
     {% else %}
+
     <p class="empty-msg">未配置 AI API。<a href="/settings">前往设置</a>配置后可使用 AI 深度解读。</p>
+
     {% endif %}
+
 </div>
 
-<!-- Notes -->
+
+
+<h2 id="review">应验回顾</h2>
+<div class="review-section">
+    <form method="post" action="/reading/{{ record.id }}/outcome" class="review-form">
+        <div class="review-form-row">
+            <label class="form-label">
+                分类
+                <select name="category" class="form-input">
+                    <option value="">未分类</option>
+                    {% for key, label in reading_categories.items() if key %}
+                    <option value="{{ key }}" {% if record.category == key %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label class="form-label">
+                应验状态
+                <select name="outcome_status" class="form-input">
+                    {% for key, label in outcome_statuses.items() %}
+                    <option value="{{ key }}" {% if record.outcome_status == key %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+        <textarea name="outcome_notes" rows="3" class="question-input"
+                  placeholder="记录实际发生了什么、哪些解读应验了...">{{ record.outcome_notes }}</textarea>
+        {% if record.reviewed_at %}
+        <p class="review-meta">上次回顾：{{ record.reviewed_at }}</p>
+        {% endif %}
+        <button type="submit" class="btn btn-primary">保存回顾</button>
+    </form>
+</div>
+
 <h2>占卜笔记</h2>
+
 <form method="post" action="/reading/{{ record.id }}/notes">
+
     <textarea name="notes" rows="4" class="question-input" placeholder="记录你的感受、领悟或后续验证...">{{ record.notes }}</textarea>
+
     <button type="submit" class="btn btn-secondary">保存笔记</button>
+
 </form>
+
 {% endblock %}
+
+
 
 {% block scripts %}
-<script src="/static/js/reading.js"></script>
+
+<script src="/static/js/reading.js?v=5"></script>
+
 {% endblock %}
+
+
