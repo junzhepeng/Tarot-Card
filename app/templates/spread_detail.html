@@ -7,8 +7,22 @@
     <div class="meta-tags">
         <span class="tag">{{ spread.card_count }} 张牌</span>
         <span class="tag">{{ category_labels.get(spread.category, spread.category) }}</span>
+        {% if is_custom and spread.scene %}
+        <span class="tag">{{ scene_labels.get(spread.scene, spread.scene) }}</span>
+        {% endif %}
     </div>
     <p class="page-desc">{{ spread.description }}</p>
+</div>
+
+<h2>布阵预览</h2>
+<div class="spread-layout" style="grid-template-columns: repeat({{ spread.layout.cols }}, 1fr);">
+    {% for pos in spread.positions %}
+    {% set coord = spread.layout.coords[pos.index] %}
+    <div class="layout-slot" style="grid-column: {{ coord[0] + 1 }}; grid-row: {{ coord[1] + 1 }};">
+        <span class="slot-label">{{ pos.index + 1 }}. {{ pos.label }}</span>
+        <div class="slot-card builder-slot-card">{{ pos.label }}</div>
+    </div>
+    {% endfor %}
 </div>
 
 <h2>坑位说明</h2>
@@ -31,7 +45,11 @@
 
 <div class="spread-actions">
     <a href="/reading/new?step=1&spread_id={{ spread.id }}" class="btn btn-primary">使用此牌阵开始解读</a>
+    {% if not is_custom %}
+    <a href="/spreads/builder?template={{ spread.id }}" class="btn btn-secondary">基于此创建自定义牌阵</a>
+    {% endif %}
     {% if is_custom %}
+    <a href="/spreads/{{ spread.id }}/edit" class="btn btn-secondary">编辑牌阵</a>
     <form method="post" action="/spreads/{{ spread.id }}/delete" style="display:inline"
           onsubmit="return confirm('确定删除此自定义牌阵？')">
         <button type="submit" class="btn btn-secondary">删除牌阵</button>

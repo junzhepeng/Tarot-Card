@@ -30,6 +30,14 @@ def export_backup() -> dict:
                 "outcome_status": full.outcome_status,
                 "outcome_notes": full.outcome_notes,
                 "reviewed_at": full.reviewed_at,
+                "querent": full.querent,
+                "tags": full.tags,
+                "parent_reading_id": full.parent_reading_id,
+                "follow_up_note": full.follow_up_note,
+                "first_impression": full.first_impression,
+                "final_summary": full.final_summary,
+                "review_due_at": full.review_due_at,
+                "daily_entry_id": full.daily_entry_id,
                 "cards": [
                     {
                         "position_index": c.position_index,
@@ -77,8 +85,10 @@ def import_backup(data: dict) -> dict:
             conn.execute(
                 "INSERT INTO readings "
                 "(id, question, spread_id, created_at, notes, ai_summary, "
-                "category, outcome_status, outcome_notes, reviewed_at) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "category, outcome_status, outcome_notes, reviewed_at, "
+                "querent, tags, parent_reading_id, follow_up_note, "
+                "first_impression, final_summary, review_due_at, daily_entry_id) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (
                     item["id"],
                     item["question"],
@@ -90,6 +100,14 @@ def import_backup(data: dict) -> dict:
                     item.get("outcome_status", "pending"),
                     item.get("outcome_notes", ""),
                     item.get("reviewed_at"),
+                    item.get("querent", ""),
+                    json.dumps(item.get("tags", []), ensure_ascii=False),
+                    item.get("parent_reading_id"),
+                    item.get("follow_up_note", ""),
+                    item.get("first_impression", ""),
+                    item.get("final_summary", ""),
+                    item.get("review_due_at"),
+                    item.get("daily_entry_id"),
                 ),
             )
             for card in item.get("cards", []):

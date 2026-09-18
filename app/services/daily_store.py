@@ -17,6 +17,15 @@ def _row_to_entry(row) -> DailyEntry:
     )
 
 
+def get_daily_entry(entry_id: int) -> DailyEntry | None:
+    conn = get_connection()
+    try:
+        row = conn.execute("SELECT * FROM daily_cards WHERE id = ?", (entry_id,)).fetchone()
+        return _row_to_entry(row) if row else None
+    finally:
+        conn.close()
+
+
 def get_entry_by_date(entry_date: str) -> DailyEntry | None:
     conn = get_connection()
     try:

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% from "_card_face.html" import card_face %}
+{% block title %}牌面洞察 - 星谕{% endblock %}
+{% block content %}
+{% set querent_options = querent_options|default([]) %}
+{% set outcome_statuses = outcome_statuses|default(OUTCOME_STATUSES) %}
+
+<div class="page-header">
+    <h1>牌面洞察</h1>
+    <p class="page-desc">跨记录的牌面频率与应验统计</p>
+</div>
+
+<form method="get" action="/insights" class="filter-bar history-filters">
+    <select name="querent" class="form-input filter-select">
+        <option value="">全部案主</option>
+        {% for qo in querent_options %}
+        <option value="{{ qo }}" {% if querent == qo %}selected{% endif %}>{{ qo }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-secondary btn-sm">筛选</button>
+    {% if querent %}
+    <a href="/insights" class="btn btn-ghost btn-sm">清除</a>
+    {% endif %}
+</form>
+
+{% if overview.reading_count > 0 %}
+<section class="stats-row insights-stats">
+    <div class="stat-card glass">
+        <span class="stat-num">{{ overview.reading_count }}</span>
+        <span class="stat-label">次占卜</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-card glass">
+        <span class="stat-num">{{ overview.draw_count }}</span>
+        <span class="stat-label">张牌面</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-card glass">
+        <span class="stat-num">{{ overview.unique_cards }}</span>
+        <span class="stat-label">不同牌</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-card glass">
+        <span class="stat-num">{{ overview.repeat_card_count }}</span>
+        <span class="stat-label">重复出现</span>
+    </div>
+</section>
+
+{% if overview.outcome_stats %}
+<h2>应验分布</h2>
+<div class="pattern-panel insights-outcomes">
+    <div class="pattern-stats">
+        {% for key, item in overview.outcome_stats.items() %}
+        <div class="pattern-stat">
+            <span class="stat-num">{{ item.count }}</span>
+            <span class="stat-label">{{ item.label }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% if frequencies %}
+<h2>高频牌面 TOP {{ frequencies|length }}</h2>
+<div class="insights-card-list">
+    {% for freq in frequencies %}
+    {% set card = card_map.get(freq.card_id) %}
+    <div class="insights-card-row glass">
+        <div class="insights-card-face">
+            {% if card %}{{ card_face(card, false, 'xs') }}{% endif %}
+        </div>
+        <div class="insights-card-info">
+            <strong>{{ card.name_zh if card else freq.card_id }}</strong>
+            <span class="insights-card-meta">
+                出现 {{ freq.draw_count }} 次 · {{ freq.reading_count }} 次占卜
+                {% if freq.reversed_count %} · 逆位 {{ freq.reversed_count }} 次{% endif %}
+            </span>
+        </div>
+        <div class="insights-card-bar-wrap">
+            <div class="bar">
+                <div class="bar-fill" style="width: {{ (freq.draw_count / frequencies[0].draw_count * 100)|int }}%"></div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="tips-box">
+    <h3>解读提示</h3>
+    <p>同一牌在多次占卜中反复出现，通常表示该能量尚未解决或正在持续影响案主。关注逆位比例变化，可追踪能量从受阻到流动的转变。</p>
+</div>
+{% endif %}
+
+{% else %}
+<div class="empty-state">
+    <p>还没有占卜记录，无法生成洞察。</p>
+    <a href="/reading/new" class="btn btn-primary">开始第一次解读</a>
+</div>
+{% endif %}
+{% endblock %}

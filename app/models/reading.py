@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 
 
@@ -27,6 +27,14 @@ class ReadingRecord:
     outcome_status: str = "pending"
     outcome_notes: str = ""
     reviewed_at: Optional[str] = None
+    review_due_at: Optional[str] = None
+    querent: str = ""
+    tags: list[str] = field(default_factory=list)
+    parent_reading_id: Optional[int] = None
+    follow_up_note: str = ""
+    first_impression: str = ""
+    final_summary: str = ""
+    daily_entry_id: Optional[int] = None
 
     @property
     def spread_cards(self) -> list[DrawnCard]:

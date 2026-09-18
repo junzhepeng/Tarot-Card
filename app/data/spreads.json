@@ -117,5 +117,76 @@
     ],
     "tips": "先读「内在视角」与「外在视角」的对比，再比较双方「想法」与「期望」是否一致。",
     "layout": {"type": "grid", "cols": 4, "coords": [[0, 0], [1, 0], [2, 0], [3, 0], [0, 1], [1, 1], [2, 1], [3, 1]]}
+  },
+  {
+    "id": "celtic-cross",
+    "name_zh": "凯尔特十字",
+    "category": "classic",
+    "card_count": 10,
+    "description": "最经典的深度牌阵，全面剖析处境、挑战、潜意识影响与未来走向。",
+    "positions": [
+      {"index": 0, "label": "现状", "hint": "问题的核心与当前处境"},
+      {"index": 1, "label": "挑战", "hint": "横切现状的主要阻碍或影响因素"},
+      {"index": 2, "label": "根基", "hint": "潜意识或过去奠定的基础"},
+      {"index": 3, "label": "过往", "hint": "刚刚过去、仍在发挥作用的因素"},
+      {"index": 4, "label": "目标", "hint": "意识层面追求的最佳结果"},
+      {"index": 5, "label": "近期", "hint": "即将发生或正在靠近的趋势"},
+      {"index": 6, "label": "自我", "hint": "你在此事中的态度与角色"},
+      {"index": 7, "label": "环境", "hint": "外界环境与他人的影响"},
+      {"index": 8, "label": "希望与恐惧", "hint": "内心的期望与担忧"},
+      {"index": 9, "label": "最终结果", "hint": "综合所有因素后的可能结局"}
+    ],
+    "tips": "建议按十字区→侧柱顺序阅读：先看中心十字（现状与挑战叠合），再读侧柱从自我到最终结果。挑战牌与现状牌同格叠放。",
+    "layout": {
+      "type": "grid",
+      "preset": "grid",
+      "cols": 6,
+      "coords": [[2, 2], [2, 2], [2, 3], [1, 2], [2, 1], [3, 2], [5, 3], [5, 2], [5, 1], [5, 0]]
+    }
+  },
+  {
+    "id": "two-paths",
+    "name_zh": "二选一",
+    "category": "classic",
+    "card_count": 6,
+    "description": "面对两个选择时，分别看清各路径的优势、挑战与综合建议。",
+    "positions": [
+      {"index": 0, "label": "当前处境", "hint": "你做选择时所处的状态与背景"},
+      {"index": 1, "label": "路径A · 优势", "hint": "选择A可能带来的好处与助力"},
+      {"index": 2, "label": "路径A · 挑战", "hint": "选择A需要面对的困难与代价"},
+      {"index": 3, "label": "路径B · 优势", "hint": "选择B可能带来的好处与助力"},
+      {"index": 4, "label": "路径B · 挑战", "hint": "选择B需要面对的困难与代价"},
+      {"index": 5, "label": "综合建议", "hint": "综合考虑后最明智的方向"}
+    ],
+    "tips": "先读当前处境，再左右对照两条路径。比较同侧优势与挑战的张力，最后以综合建议为准，而非单独一张牌。",
+    "layout": {
+      "type": "grid",
+      "preset": "columns",
+      "cols": 5,
+      "coords": [[2, 0], [0, 1], [1, 1], [3, 1], [4, 1], [2, 2]]
+    }
+  },
+  {
+    "id": "relationship-mirror",
+    "name_zh": "关系镜像",
+    "category": "relationship",
+    "card_count": 7,
+    "description": "照见双方真实状态、彼此眼中的对方，以及关系的障碍与发展方向。",
+    "positions": [
+      {"index": 0, "label": "你", "hint": "你在这段关系中的真实状态"},
+      {"index": 1, "label": "对方", "hint": "对方的真实状态与能量"},
+      {"index": 2, "label": "你眼中的TA", "hint": "你如何看待对方、你的投射"},
+      {"index": 3, "label": "TA眼中的你", "hint": "对方如何看待你、对方的投射"},
+      {"index": 4, "label": "关系现状", "hint": "你们之间实际的连接状态"},
+      {"index": 5, "label": "核心障碍", "hint": "阻碍关系发展的关键因素"},
+      {"index": 6, "label": "发展建议", "hint": "关系向前发展的行动指引"}
+    ],
+    "tips": "对比「你」与「你眼中的TA」、「对方」与「TA眼中的你」，看投射与现实的落差。关系现状牌是核心，结合障碍与建议做判断。",
+    "layout": {
+      "type": "grid",
+      "preset": "horseshoe",
+      "cols": 5,
+      "coords": [[1, 0], [3, 0], [0, 1], [4, 1], [2, 1], [1, 2], [3, 2]]
+    }
   }
 ]

@@ -38,6 +38,24 @@ class ClarifierDeleteRequest(BaseModel):
     clarifier_id: int
 
 
+@router.get("/spreads/{spread_id}")
+async def api_get_spread(spread_id: str):
+    spread = get_spread(spread_id)
+    if not spread:
+        raise HTTPException(404, "牌阵不存在。")
+    return {
+        "id": spread.id,
+        "name_zh": spread.name_zh,
+        "description": spread.description,
+        "tips": spread.tips,
+        "positions": [
+            {"index": p.index, "label": p.label, "hint": p.hint}
+            for p in spread.positions
+        ],
+        "layout": spread.layout,
+    }
+
+
 @router.get("/cards")
 async def api_cards():
     cards = load_cards()
@@ -73,9 +91,12 @@ async def api_ai_reading(body: AIRequest):
         (c.position_index, c.card_id, c.is_reversed) for c in record.spread_cards
     ]
     analysis = interpret_spread(spread, drawn)
+    clarifiers = get_clarifier_readings(record)
 
     try:
-        summary = await generate_ai_reading(record.question, spread.name_zh, analysis)
+        summary = await generate_ai_reading(
+            record.question, spread.name_zh, analysis, clarifiers
+        )
         update_ai_summary(body.reading_id, summary)
         return {"summary": summary}
     except Exception as e:
@@ -174,14 +195,19 @@ async def api_backup():
 
 
 @router.get("/reading/{reading_id}/export.md")
-async def api_export_reading(reading_id: int):
-    markdown = export_reading_markdown(reading_id)
+async def api_export_reading(reading_id: int, mode: str = "full"):
+    if mode not in ("full", "client"):
+        mode = "full"
+    markdown = export_reading_markdown(reading_id, mode=mode)
     if not markdown:
         raise HTTPException(404, "占卜记录不存在。")
+    filename = (
+        f"reading-{reading_id}-client.md"
+        if mode == "client"
+        else f"reading-{reading_id}.md"
+    )
     return Response(
         content=markdown,
         media_type="text/markdown; charset=utf-8",
-        headers={
-            "Content-Disposition": f'attachment; filename="reading-{reading_id}.md"'
-        },
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )

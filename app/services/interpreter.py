@@ -126,6 +126,67 @@ def _narrative_voice_of_heart(positions: list[PositionReading]) -> list[str]:
     ]
 
 
+def _narrative_celtic_cross(positions: list[PositionReading]) -> list[str]:
+    if len(positions) < 10:
+        return []
+    present, challenge, foundation, past, goal, near, self, env, hopes, outcome = positions
+    return [
+        f"十字核心：现状「{present.card_name_zh}」被「{challenge.card_name_zh}」横切，"
+        f"这是当前最需要正视的张力。",
+        f"时间轴：过往「{past.card_name_zh}」→ 近期「{near.card_name_zh}」，"
+        f"根基「{foundation.card_name_zh}」支撑整个局面，目标趋向「{goal.card_name_zh}」。",
+        f"侧柱：你的态度「{self.card_name_zh}」受环境「{env.card_name_zh}」影响，"
+        f"内心希望与恐惧「{hopes.card_name_zh}」拉扯着走向。",
+        f"最终结果：「{outcome.card_name_zh}」——若整合十字与侧柱的信息，"
+        f"这是最可能的结局方向。",
+    ]
+
+
+def _narrative_two_paths(positions: list[PositionReading]) -> list[str]:
+    if len(positions) < 6:
+        return []
+    situation, a_pro, a_con, b_pro, b_con, advice = positions
+    return [
+        f"当前处境：「{situation.card_name_zh}」——你做选择时的起点。",
+        f"路径 A：优势「{a_pro.card_name_zh}」vs 挑战「{a_con.card_name_zh}」，"
+        f"看收益与代价是否平衡。",
+        f"路径 B：优势「{b_pro.card_name_zh}」vs 挑战「{b_con.card_name_zh}」，"
+        f"与路径 A 对照衡量。",
+        f"综合建议：「{advice.card_name_zh}」——{advice.meaning}",
+    ]
+
+
+def _narrative_relationship_mirror(positions: list[PositionReading]) -> list[str]:
+    if len(positions) < 7:
+        return []
+    you, partner, you_see, they_see, status, block, advice = positions
+    return [
+        f"双方状态：你「{you.card_name_zh}」与对方「{partner.card_name_zh}」的能量对比。",
+        f"镜像投射：你眼中的 TA「{you_see.card_name_zh}」vs TA 眼中的你「{they_see.card_name_zh}」，"
+        f"注意理想化或误读。",
+        f"关系现状「{status.card_name_zh}」揭示实际连接，"
+        f"核心障碍「{block.card_name_zh}」指出需要面对的课题。",
+        f"发展建议：「{advice.card_name_zh}」——{advice.meaning}",
+    ]
+
+
+def _narrative_generic(spread: Spread, positions: list[PositionReading]) -> list[str]:
+    if not positions:
+        return []
+    lines = [f"「{spread.name_zh}」整阵概览："]
+    for pos in positions:
+        orient = "逆位" if pos.is_reversed else "正位"
+        lines.append(
+            f"· {pos.position_label}位的「{pos.card_name_zh}」({orient})提示：{pos.meaning}"
+        )
+    if len(positions) >= 2:
+        lines.append(
+            f"请将「{positions[0].position_label}」至「{positions[-1].position_label}」"
+            "各位置的牌义串联成完整叙事，关注花色、元素与主题的呼应。"
+        )
+    return lines
+
+
 NARRATIVE_HANDLERS = {
     "yes-no": lambda pos: _narrative_yes_no(pos[0]) if pos else [],
     "past-present-future": _narrative_past_present_future,
@@ -137,6 +198,9 @@ NARRATIVE_HANDLERS = {
     "lovers-cross": _narrative_lovers_cross,
     "secret-crush": _narrative_secret_crush,
     "voice-of-heart": _narrative_voice_of_heart,
+    "celtic-cross": _narrative_celtic_cross,
+    "two-paths": _narrative_two_paths,
+    "relationship-mirror": _narrative_relationship_mirror,
     "single-card": lambda pos: [
         f"核心洞察：「{pos[0].card_name_zh}」——{pos[0].meaning}"
     ] if pos else [],
@@ -162,8 +226,11 @@ def interpret_spread(
     position_readings.sort(key=lambda r: r.position_index)
     patterns = analyze_patterns(pattern_input)
 
-    handler = NARRATIVE_HANDLERS.get(spread.id, lambda pos: [])
-    narrative = handler(position_readings)
+    handler = NARRATIVE_HANDLERS.get(spread.id)
+    if handler:
+        narrative = handler(position_readings)
+    else:
+        narrative = _narrative_generic(spread, position_readings)
 
     if patterns["insights"]:
         narrative.append("---")

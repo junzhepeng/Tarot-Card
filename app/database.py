@@ -40,12 +40,17 @@ def _migrate_daily_cards(conn: sqlite3.Connection) -> None:
 
 
 def _migrate_custom_spreads(conn: sqlite3.Connection) -> None:
+    if not _column_exists(conn, "custom_spreads", "category"):
+        conn.execute(
+            "ALTER TABLE custom_spreads ADD COLUMN category TEXT NOT NULL DEFAULT 'general'"
+        )
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS custom_spreads (
             id TEXT PRIMARY KEY,
             name_zh TEXT NOT NULL,
             description TEXT DEFAULT '',
+            category TEXT NOT NULL DEFAULT 'general',
             card_count INTEGER NOT NULL,
             positions_json TEXT NOT NULL,
             layout_json TEXT NOT NULL,
@@ -67,6 +72,28 @@ def _migrate_readings(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE readings ADD COLUMN outcome_notes TEXT NOT NULL DEFAULT ''")
     if not _column_exists(conn, "readings", "reviewed_at"):
         conn.execute("ALTER TABLE readings ADD COLUMN reviewed_at TEXT")
+    if not _column_exists(conn, "readings", "querent"):
+        conn.execute("ALTER TABLE readings ADD COLUMN querent TEXT NOT NULL DEFAULT ''")
+    if not _column_exists(conn, "readings", "tags"):
+        conn.execute("ALTER TABLE readings ADD COLUMN tags TEXT NOT NULL DEFAULT '[]'")
+    if not _column_exists(conn, "readings", "parent_reading_id"):
+        conn.execute("ALTER TABLE readings ADD COLUMN parent_reading_id INTEGER")
+    if not _column_exists(conn, "readings", "follow_up_note"):
+        conn.execute(
+            "ALTER TABLE readings ADD COLUMN follow_up_note TEXT NOT NULL DEFAULT ''"
+        )
+    if not _column_exists(conn, "readings", "first_impression"):
+        conn.execute(
+            "ALTER TABLE readings ADD COLUMN first_impression TEXT NOT NULL DEFAULT ''"
+        )
+    if not _column_exists(conn, "readings", "final_summary"):
+        conn.execute(
+            "ALTER TABLE readings ADD COLUMN final_summary TEXT NOT NULL DEFAULT ''"
+        )
+    if not _column_exists(conn, "readings", "review_due_at"):
+        conn.execute("ALTER TABLE readings ADD COLUMN review_due_at TEXT")
+    if not _column_exists(conn, "readings", "daily_entry_id"):
+        conn.execute("ALTER TABLE readings ADD COLUMN daily_entry_id INTEGER")
 
 
 def init_db() -> None:

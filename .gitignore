@@ -9,6 +9,9 @@ env/
 # Local data
 tarot.db
 *.db
+uvicorn.log
+uvicorn.err.log
+.uvicorn.pid
 
 # IDE
 .idea/

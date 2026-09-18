@@ -1,16 +1,37 @@
 {% extends "base.html" %}
 {% block title %}历史记录 - 塔罗解牌助手{% endblock %}
 {% block content %}
-{% set reading_categories = reading_categories|default({}) %}
-{% set outcome_statuses = outcome_statuses|default({}) %}
+{% set reading_categories = reading_categories|default(READING_CATEGORIES) %}
+{% set outcome_statuses = outcome_statuses|default(OUTCOME_STATUSES) %}
+{% if READING_TAGS is defined %}{% set tag_map = READING_TAGS %}{% else %}{% set tag_map = {'love':'感情','career':'事业','spiritual':'灵性','general':'综合'} %}{% endif %}
+{% set querent_options = querent_options|default([]) %}
+{% set parent_map = parent_map|default({}) %}
 <div class="page-header">
     <h1>占卜历史</h1>
     <p class="page-desc">回顾过往的占卜记录，追踪应验情况</p>
-    <a href="/compare" class="btn btn-secondary btn-sm" style="margin-top:0.8rem;">占卜对比</a>
+    <div class="page-header-actions">
+        <a href="/compare" class="btn btn-secondary btn-sm">占卜对比</a>
+        <a href="/insights" class="btn btn-secondary btn-sm">牌面洞察</a>
+    </div>
 </div>
+
+{% if due_count and due_count > 0 and not due %}
+<div class="tips-box due-banner">
+    <p>
+        <strong>{{ due_count }} 条记录已到回访日期。</strong>
+        <a href="/history?due=overdue">查看待回访 →</a>
+    </p>
+</div>
+{% endif %}
 
 <form method="get" action="/history" class="filter-bar history-filters">
     <input type="text" name="q" value="{{ q }}" placeholder="搜索问题..." class="search-input">
+    <select name="querent" class="form-input filter-select">
+        <option value="">全部案主</option>
+        {% for qo in querent_options %}
+        <option value="{{ qo }}" {% if querent == qo %}selected{% endif %}>{{ qo }}</option>
+        {% endfor %}
+    </select>
     <select name="category" class="form-input filter-select">
         <option value="">全部分类</option>
         {% for key, label in reading_categories.items() if key %}
@@ -23,44 +44,106 @@
         <option value="{{ key }}" {% if outcome_status == key %}selected{% endif %}>{{ label }}</option>
         {% endfor %}
     </select>
+    <select name="due" class="form-input filter-select">
+        <option value="">全部回访</option>
+        <option value="overdue" {% if due == 'overdue' %}selected{% endif %}>待回访</option>
+    </select>
     <button type="submit" class="btn btn-secondary btn-sm">筛选</button>
-    {% if q or category or outcome_status %}
+    {% if q or category or outcome_status or querent or due %}
     <a href="/history" class="btn btn-ghost btn-sm">清除</a>
     {% endif %}
 </form>
 
 {% if readings %}
-<div class="history-list">
+<div class="history-bulk-bar">
+    <label class="history-select-all">
+        <input type="checkbox" id="select-all" aria-label="全选">
+        <span>全选</span>
+    </label>
+    <span class="history-selected-count" id="selected-count">已选 0 条</span>
+    <button type="button" class="btn btn-secondary btn-sm" id="bulk-delete-btn" disabled>删除选中</button>
+</div>
+
+<form method="post" action="/history/delete" id="bulk-delete-form" hidden></form>
+
+<div class="history-list" id="history-list">
     {% for r in readings %}
-    <a href="/reading/{{ r.id }}" class="history-item">
-        <div class="history-meta">
-            <span class="history-date">{{ r.created_at }}</span>
-            <span class="tag">{{ spread_map.get(r.spread_id).name_zh if spread_map.get(r.spread_id) else r.spread_id }}</span>
-            {% if r.category %}
-            <span class="tag tag-category">{{ reading_categories.get(r.category, r.category) }}</span>
+    <div class="history-item" data-reading-id="{{ r.id }}">
+        <label class="history-select-wrap" title="选择此记录">
+            <input type="checkbox" class="history-select" value="{{ r.id }}"
+                   data-question="{{ r.question | e }}">
+        </label>
+        <a href="/reading/{{ r.id }}" class="history-item-link">
+            <div class="history-meta">
+                <span class="history-date">{{ r.created_at }}</span>
+                {% if r.querent %}
+                <span class="tag tag-querent">{{ r.querent }}</span>
+                {% endif %}
+                <span class="tag">{{ spread_map.get(r.spread_id).name_zh if spread_map.get(r.spread_id) else r.spread_id }}</span>
+                {% for t in r.tags %}
+                <span class="tag tag-theme">{{ tag_map.get(t, t) }}</span>
+                {% endfor %}
+                {% if r.category %}
+                <span class="tag tag-category">{{ reading_categories.get(r.category, r.category) }}</span>
+                {% endif %}
+                {% if r.parent_reading_id and parent_map.get(r.parent_reading_id) %}
+                <span class="tag tag-followup">续占</span>
+                {% endif %}
+                <span class="outcome-badge outcome-{{ r.outcome_status }}">
+                    {{ outcome_statuses.get(r.outcome_status, r.outcome_status) }}
+                </span>
+                {% if r.review_due_at %}
+                <span class="tag tag-due {% if r.review_due_at <= today %}tag-due-overdue{% endif %}">
+                    回访 {{ r.review_due_at }}
+                </span>
+                {% endif %}
+            </div>
+            <h3>{{ r.question }}</h3>
+            {% if r.parent_reading_id and parent_map.get(r.parent_reading_id) %}
+            <p class="history-notes">
+                <strong>续占自：</strong>
+                <a href="/reading/{{ r.parent_reading_id }}">#{{ r.parent_reading_id }} {{ parent_map[r.parent_reading_id].question[:30] }}{% if parent_map[r.parent_reading_id].question|length > 30 %}…{% endif %}</a>
+                {% if r.follow_up_note %} — {{ r.follow_up_note }}{% endif %}
+            </p>
             {% endif %}
-            <span class="outcome-badge outcome-{{ r.outcome_status }}">
-                {{ outcome_statuses.get(r.outcome_status, r.outcome_status) }}
-            </span>
-        </div>
-        <h3>{{ r.question }}</h3>
-        <div class="history-cards">
-            {% for c in r.spread_cards %}
-            <span class="mini-card">{{ card_map.get(c.card_id).name_zh if card_map.get(c.card_id) else c.card_id }}{% if c.is_reversed %} ↓{% endif %}</span>
-            {% endfor %}
-        </div>
-        {% if r.outcome_notes %}
-        <p class="history-notes"><strong>回顾：</strong>{{ r.outcome_notes[:80] }}{% if r.outcome_notes|length > 80 %}...{% endif %}</p>
-        {% elif r.notes %}
-        <p class="history-notes">{{ r.notes[:80] }}{% if r.notes|length > 80 %}...{% endif %}</p>
-        {% endif %}
-    </a>
+            <div class="history-cards">
+                {% for c in r.spread_cards %}
+                <span class="mini-card">{{ card_map.get(c.card_id).name_zh if card_map.get(c.card_id) else c.card_id }}{% if c.is_reversed %} ↓{% endif %}</span>
+                {% endfor %}
+            </div>
+            {% if r.outcome_notes %}
+            <p class="history-notes"><strong>回顾：</strong>{{ r.outcome_notes[:80] }}{% if r.outcome_notes|length > 80 %}...{% endif %}</p>
+            {% elif r.notes %}
+            <p class="history-notes">{{ r.notes[:80] }}{% if r.notes|length > 80 %}...{% endif %}</p>
+            {% endif %}
+        </a>
+        <button type="button" class="btn btn-ghost btn-sm history-delete-one"
+                data-id="{{ r.id }}" data-question="{{ r.question | e }}">删除</button>
+    </div>
     {% endfor %}
+</div>
+
+<div id="delete-dialog" class="confirm-dialog" hidden aria-hidden="true">
+    <div class="confirm-dialog-backdrop" data-dialog-dismiss></div>
+    <div class="confirm-dialog-panel" role="dialog" aria-labelledby="delete-dialog-title" aria-modal="true">
+        <h3 id="delete-dialog-title">确认删除</h3>
+        <p id="delete-dialog-message"></p>
+        <div class="confirm-dialog-actions">
+            <button type="button" class="btn btn-secondary" id="delete-cancel">取消</button>
+            <button type="button" class="btn btn-primary" id="delete-confirm">确认删除</button>
+        </div>
+    </div>
 </div>
 {% else %}
 <div class="empty-state">
-    <p>{% if q or category or outcome_status %}没有符合条件的记录。{% else %}还没有占卜记录。{% endif %}</p>
+    <p>{% if q or category or outcome_status or querent or due %}没有符合条件的记录。{% else %}还没有占卜记录。{% endif %}</p>
     <a href="/reading/new" class="btn btn-primary">开始第一次解读</a>
 </div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if readings %}
+<script src="/static/js/history.js?v=1"></script>
 {% endif %}
 {% endblock %}

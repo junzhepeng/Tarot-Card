@@ -21,6 +21,7 @@ class Spread:
     positions: list[Position]
     tips: str
     layout: dict[str, Any]
+    scene: str = ""
 
     def get_position(self, index: int) -> Position:
         return self.positions[index]

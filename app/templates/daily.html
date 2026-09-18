@@ -17,6 +17,8 @@
         <p class="daily-notes">{{ today_entry.notes }}</p>
         {% endif %}
         <p class="daily-meta">记录于 {{ today_entry.created_at }}</p>
+        <a href="/reading/new?step=3&amp;spread_id=single-card&amp;card_id={{ today_entry.card_id }}&amp;is_reversed={{ 1 if today_entry.is_reversed else 0 }}&amp;daily_id={{ today_entry.id }}&amp;question={{ ('今日指引（' ~ today_entry.entry_date ~ '）') | urlencode }}&amp;querent={{ '自己' | urlencode }}"
+           class="btn btn-secondary btn-sm daily-expand-btn">展开完整解读</a>
     </div>
     {% endif %}
 
@@ -62,6 +64,8 @@
                     {{ '逆位' if entry.is_reversed else '正位' }}
                 </span>
                 {% if entry.notes %}<p class="daily-notes-sm">{{ entry.notes }}</p>{% endif %}
+                <a href="/reading/new?step=3&amp;spread_id=single-card&amp;card_id={{ entry.card_id }}&amp;is_reversed={{ 1 if entry.is_reversed else 0 }}&amp;daily_id={{ entry.id }}&amp;question={{ ('今日指引（' ~ entry.entry_date ~ '）') | urlencode }}&amp;querent={{ '自己' | urlencode }}"
+                   class="btn btn-ghost btn-sm">展开解读</a>
             </div>
         </div>
         <form method="post" action="/daily/{{ entry.id }}/delete" class="daily-delete-form"

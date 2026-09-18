@@ -47,14 +47,33 @@ function initQuestionForm() {
 
     const input = document.getElementById('question-input');
     const error = document.getElementById('question-error');
+    const querentInput = document.getElementById('querent');
+    const querentError = document.getElementById('querent-error');
 
-    input.addEventListener('input', () => hideFieldError(error, input));
+    input?.addEventListener('input', () => hideFieldError(error, input));
+    querentInput?.addEventListener('input', () => hideFieldError(querentError, querentInput));
+
+    document.querySelectorAll('.querent-pick').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            if (!querentInput) return;
+            querentInput.value = btn.dataset.querent || '';
+            hideFieldError(querentError, querentInput);
+            querentInput.focus();
+        });
+    });
 
     form.addEventListener('submit', (e) => {
+        let valid = true;
+        if (querentInput && !querentInput.value.trim()) {
+            e.preventDefault();
+            showFieldError(querentError, querentInput);
+            querentInput.focus();
+            valid = false;
+        }
         if (!input.value.trim()) {
             e.preventDefault();
             showFieldError(error, input);
-            input.focus();
+            if (valid) input.focus();
         }
     });
 }
@@ -371,11 +390,68 @@ function initClarifierForms() {
     });
 }
 
+function initDeleteReading() {
+    const btn = document.getElementById('delete-reading-btn');
+    const form = document.getElementById('delete-reading-form');
+    const dialog = document.getElementById('delete-dialog');
+    const messageEl = document.getElementById('delete-dialog-message');
+    if (!btn || !form || !dialog || !messageEl) return;
+
+    const truncate = (text, max = 40) => {
+        const t = (text || '').trim();
+        return t.length > max ? `${t.slice(0, max)}…` : t;
+    };
+
+    const hideDialog = () => {
+        dialog.hidden = true;
+        dialog.setAttribute('aria-hidden', 'true');
+    };
+
+    btn.addEventListener('click', () => {
+        const question = btn.dataset.question || '';
+        messageEl.textContent = `确定删除「${truncate(question)}」？此操作不可恢复。`;
+        dialog.hidden = false;
+        dialog.setAttribute('aria-hidden', 'false');
+        document.getElementById('delete-cancel')?.focus();
+    });
+
+    document.getElementById('delete-cancel')?.addEventListener('click', hideDialog);
+    dialog.querySelector('[data-dialog-dismiss]')?.addEventListener('click', hideDialog);
+    document.getElementById('delete-confirm')?.addEventListener('click', () => {
+        hideDialog();
+        form.submit();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (dialog.hidden) return;
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            hideDialog();
+        }
+    });
+}
+
+function initPrefilledCards() {
+    document.querySelectorAll('#reading-form .card-select').forEach((select) => {
+        if (!select.value) return;
+        const idx = select.dataset.index;
+        const reversed = document.querySelector(`input[name="reversed_${idx}"]`);
+        if (typeof updateCardPreview === 'function') {
+            updateCardPreview(select);
+        } else if (reversed) {
+            updateClarifierPreview(select, document.getElementById(`preview-${idx}`), reversed);
+        }
+        select.dispatchEvent(new Event('change'));
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initQuestionForm();
     initReadingForm();
     initClarifierForms();
     initCardPickers();
+    initDeleteReading();
+    initPrefilledCards();
 
     document.querySelectorAll('#reading-form .card-select').forEach((select) => {
         select.addEventListener('change', function () {

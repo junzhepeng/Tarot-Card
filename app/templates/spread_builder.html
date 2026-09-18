@@ -1,60 +1,101 @@
 {% extends "base.html" %}
-{% block title %}创建自定义牌阵 - 星谕{% endblock %}
+{% block title %}{% if edit_spread_id %}编辑自定义牌阵{% else %}创建自定义牌阵{% endif %} - 星谕{% endblock %}
 {% block content %}
-<a href="/spreads" class="back-link">← 返回牌阵库</a>
+<a href="{% if edit_spread_id %}/spreads/{{ edit_spread_id }}{% else %}/spreads{% endif %}" class="back-link">← {% if edit_spread_id %}返回牌阵详情{% else %}返回牌阵库{% endif %}</a>
 <div class="page-header">
-    <h1>创建自定义牌阵</h1>
-    <p class="page-desc">自定义坑位名称与含义，保存后可用于录牌解读</p>
+    <h1>{% if edit_spread_id %}编辑自定义牌阵{% else %}创建自定义牌阵{% endif %}</h1>
+    <p class="page-desc">参考塔罗师布阵习惯：先定场景与布局，再为每个坑位命名并写明解读方向</p>
+    {% if edit_spread_id %}
+    <p class="section-hint" style="margin-top:0.6rem;">修改仅影响今后新建的解读，已有占卜记录仍按原牌阵解读。</p>
+    {% endif %}
 </div>
 
-{% if error %}
-<div class="field-error show" style="display:flex;"><span>请填写牌阵名称，并至少添加 2 个坑位。</span></div>
+{% if error == '1' %}
+<div class="field-error show" style="display:flex;"><span>请填写牌阵名称，并满足所选布局的最少张数要求。</span></div>
+{% elif error == '2' %}
+<div class="field-error show" style="display:flex;"><span>坑位数量超出所选布局支持的上限，请减少坑位或更换布局。</span></div>
 {% endif %}
 
-<form method="post" action="/spreads/builder" class="builder-form" id="builder-form">
-    <div class="form-group">
-        <label for="name_zh">牌阵名称</label>
-        <input type="text" id="name_zh" name="name_zh" class="form-input" required placeholder="如：我的三牌阵">
-    </div>
-    <div class="form-group">
-        <label for="description">描述</label>
-        <input type="text" id="description" name="description" class="form-input" placeholder="适用场景说明">
-    </div>
-    <div class="form-group">
-        <label for="tips">解读技巧</label>
-        <textarea id="tips" name="tips" rows="2" class="question-input" placeholder="解读此牌阵时的注意事项"></textarea>
-    </div>
-
-    <h2>坑位设置</h2>
-    <div id="position-rows">
-        {% for i in range(3) %}
-        <div class="builder-position-row">
-            <span class="position-num">{{ i + 1 }}</span>
-            <input type="text" name="label" class="form-input" placeholder="坑位名称（如：过去）">
-            <input type="text" name="hint" class="form-input" placeholder="坑位含义提示">
+<form method="post" action="{% if edit_spread_id %}/spreads/{{ edit_spread_id }}/edit{% else %}/spreads/builder{% endif %}" class="builder-form" id="builder-form">
+    <section class="builder-section">
+        <h2>基本信息</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="name_zh">牌阵名称 <span class="required">*</span></label>
+                <input type="text" id="name_zh" name="name_zh" class="form-input" required placeholder="如：感情三牌阵">
+            </div>
+            <div class="form-group">
+                <label for="scene">适用场景</label>
+                <select id="scene" name="scene" class="form-input">
+                    {% for key, label in scene_labels.items() %}
+                    <option value="{{ key }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
         </div>
-        {% endfor %}
-    </div>
-    <button type="button" class="btn btn-secondary btn-sm" id="add-position">+ 添加坑位</button>
+        <div class="form-group">
+            <label for="description">适用说明</label>
+            <input type="text" id="description" name="description" class="form-input" placeholder="此牌阵适合解答什么问题">
+        </div>
+        <div class="form-group">
+            <label for="tips">解读技巧</label>
+            <textarea id="tips" name="tips" rows="2" class="question-input" placeholder="串联各坑位时的注意事项，如先看中心再看四周"></textarea>
+        </div>
+    </section>
 
-    <div style="margin-top:1.5rem;">
-        <button type="submit" class="btn btn-primary">保存牌阵</button>
+    <section class="builder-section">
+        <h2>布阵布局</h2>
+        <p class="section-hint">布局决定牌在桌面上的相对位置，与抽牌顺序无关</p>
+        <div class="layout-preset-grid" id="layout-presets">
+            {% for key, preset in layout_presets.items() %}
+            <label class="layout-preset-card">
+                <input type="radio" name="layout_preset" value="{{ key }}" {% if key == 'grid' %}checked{% endif %}>
+                <span class="preset-name">{{ preset.name }}</span>
+                <span class="preset-desc">{{ preset.desc }}</span>
+                <span class="preset-range">{{ preset.min_cards }}–{{ preset.max_cards }} 张</span>
+            </label>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="builder-section">
+        <h2>坑位设置</h2>
+        <p class="section-hint">按抽牌/录入顺序排列；名称与提示将显示在录牌与解读页</p>
+        <div id="position-rows"></div>
+        <div class="builder-actions">
+            <button type="button" class="btn btn-secondary btn-sm" id="add-position">+ 添加坑位</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="remove-position">− 移除末位</button>
+        </div>
+    </section>
+
+    <section class="builder-section">
+        <h2>布局预览</h2>
+        <div id="layout-preview" class="spread-layout builder-preview"></div>
+    </section>
+
+    <div class="builder-submit">
+        <button type="submit" class="btn btn-primary">{% if edit_spread_id %}保存修改{% else %}保存牌阵{% endif %}</button>
     </div>
 </form>
+
+<div id="leave-dialog" class="leave-dialog" hidden aria-hidden="true">
+    <div class="leave-dialog-backdrop" data-leave-dismiss></div>
+    <div class="leave-dialog-panel" role="dialog" aria-labelledby="leave-dialog-title" aria-modal="true">
+        <h3 id="leave-dialog-title">未保存的更改</h3>
+        <p>你有尚未保存的编辑内容，确定要离开此页面吗？</p>
+        <div class="leave-dialog-actions">
+            <button type="button" class="btn btn-secondary" id="leave-cancel">继续编辑</button>
+            <button type="button" class="btn btn-primary" id="leave-confirm">离开</button>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-document.getElementById('add-position')?.addEventListener('click', () => {
-    const container = document.getElementById('position-rows');
-    const count = container.children.length + 1;
-    const row = document.createElement('div');
-    row.className = 'builder-position-row';
-    row.innerHTML = `
-        <span class="position-num">${count}</span>
-        <input type="text" name="label" class="form-input" placeholder="坑位名称">
-        <input type="text" name="hint" class="form-input" placeholder="坑位含义提示">`;
-    container.appendChild(row);
-});
+window.LAYOUT_PRESETS = {{ layout_presets | tojson }};
+window.TEMPLATE_ID = {{ template_id | tojson }};
+window.EDIT_DATA = {{ edit_data | tojson }};
 </script>
+<script src="/static/js/spread_builder.js?v=3"></script>
 {% endblock %}

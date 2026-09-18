@@ -1,11 +1,25 @@
 from __future__ import annotations
 
+import json
 from datetime import datetime
 
+from app.constants import READING_TAGS
 from app.database import get_connection
 from app.models.reading import DrawnCard, ReadingRecord
 from app.services.card_loader import get_spread
 from app.services.clarifier import ClarifierReading, build_clarifier_reading
+
+
+def _parse_tags(raw: str | None) -> list[str]:
+    if not raw:
+        return []
+    try:
+        tags = json.loads(raw)
+        if isinstance(tags, list):
+            return [t for t in tags if t in READING_TAGS]
+    except (json.JSONDecodeError, TypeError):
+        pass
+    return []
 
 
 def _row_to_drawn_card(row) -> DrawnCard:
@@ -23,6 +37,7 @@ def _row_to_drawn_card(row) -> DrawnCard:
 
 def _row_to_record(row, cards: list[DrawnCard]) -> ReadingRecord:
     keys = row.keys()
+    parent_id = row["parent_reading_id"] if "parent_reading_id" in keys else None
     return ReadingRecord(
         id=row["id"],
         question=row["question"],
@@ -35,6 +50,14 @@ def _row_to_record(row, cards: list[DrawnCard]) -> ReadingRecord:
         outcome_status=row["outcome_status"] if "outcome_status" in keys else "pending",
         outcome_notes=row["outcome_notes"] if "outcome_notes" in keys else "",
         reviewed_at=row["reviewed_at"] if "reviewed_at" in keys else None,
+        review_due_at=row["review_due_at"] if "review_due_at" in keys else None,
+        querent=row["querent"] if "querent" in keys else "",
+        tags=_parse_tags(row["tags"] if "tags" in keys else "[]"),
+        parent_reading_id=parent_id,
+        follow_up_note=row["follow_up_note"] if "follow_up_note" in keys else "",
+        first_impression=row["first_impression"] if "first_impression" in keys else "",
+        final_summary=row["final_summary"] if "final_summary" in keys else "",
+        daily_entry_id=row["daily_entry_id"] if "daily_entry_id" in keys else None,
     )
 
 
@@ -48,20 +71,45 @@ def _load_cards_for_reading(conn, reading_id: int) -> list[DrawnCard]:
     return [_row_to_drawn_card(r) for r in card_rows]
 
 
+def _normalize_tags(tags: list[str] | None) -> list[str]:
+    if not tags:
+        return []
+    return [t for t in tags if t in READING_TAGS]
+
+
 def save_reading(
     question: str,
     spread_id: str,
     cards: list[tuple[int, str, bool]],
     notes: str = "",
     ai_summary: str | None = None,
+    querent: str = "",
+    tags: list[str] | None = None,
+    parent_reading_id: int | None = None,
+    follow_up_note: str = "",
+    daily_entry_id: int | None = None,
 ) -> int:
     conn = get_connection()
     try:
         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        tag_list = _normalize_tags(tags)
         cur = conn.execute(
-            "INSERT INTO readings (question, spread_id, created_at, notes, ai_summary) "
-            "VALUES (?, ?, ?, ?, ?)",
-            (question, spread_id, now, notes, ai_summary),
+            "INSERT INTO readings "
+            "(question, spread_id, created_at, notes, ai_summary, querent, tags, "
+            "parent_reading_id, follow_up_note, daily_entry_id) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                question,
+                spread_id,
+                now,
+                notes,
+                ai_summary,
+                querent.strip(),
+                json.dumps(tag_list, ensure_ascii=False),
+                parent_reading_id,
+                follow_up_note or "",
+                daily_entry_id,
+            ),
         )
         reading_id = cur.lastrowid
         for pos_idx, card_id, is_reversed in cards:
@@ -93,6 +141,8 @@ def list_readings(
     q: str = "",
     category: str = "",
     outcome_status: str = "",
+    querent: str = "",
+    due: str = "",
 ) -> list[ReadingRecord]:
     conn = get_connection()
     try:
@@ -108,10 +158,49 @@ def list_readings(
         if outcome_status:
             sql += " AND outcome_status = ?"
             params.append(outcome_status)
+        if querent.strip():
+            sql += " AND querent = ?"
+            params.append(querent.strip())
+        if due == "overdue":
+            today = datetime.now().strftime("%Y-%m-%d")
+            sql += (
+                " AND review_due_at IS NOT NULL AND review_due_at != ''"
+                " AND review_due_at <= ?"
+            )
+            params.append(today)
 
         sql += " ORDER BY created_at DESC"
         rows = conn.execute(sql, params).fetchall()
 
+        results = []
+        for row in rows:
+            cards = _load_cards_for_reading(conn, row["id"])
+            results.append(_row_to_record(row, cards))
+        return results
+    finally:
+        conn.close()
+
+
+def list_querents(limit: int = 20) -> list[str]:
+    conn = get_connection()
+    try:
+        rows = conn.execute(
+            "SELECT DISTINCT querent FROM readings "
+            "WHERE querent != '' ORDER BY querent LIMIT ?",
+            (limit,),
+        ).fetchall()
+        return [r["querent"] for r in rows if r["querent"]]
+    finally:
+        conn.close()
+
+
+def list_follow_ups(parent_reading_id: int) -> list[ReadingRecord]:
+    conn = get_connection()
+    try:
+        rows = conn.execute(
+            "SELECT * FROM readings WHERE parent_reading_id = ? ORDER BY created_at ASC",
+            (parent_reading_id,),
+        ).fetchall()
         results = []
         for row in rows:
             cards = _load_cards_for_reading(conn, row["id"])
@@ -193,19 +282,59 @@ def update_notes(reading_id: int, notes: str) -> None:
         conn.close()
 
 
+def update_first_impression(reading_id: int, first_impression: str) -> None:
+    conn = get_connection()
+    try:
+        conn.execute(
+            "UPDATE readings SET first_impression = ? WHERE id = ?",
+            (first_impression, reading_id),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def update_final_summary(reading_id: int, final_summary: str) -> None:
+    conn = get_connection()
+    try:
+        conn.execute(
+            "UPDATE readings SET final_summary = ? WHERE id = ?",
+            (final_summary, reading_id),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def count_due_reviews() -> int:
+    conn = get_connection()
+    try:
+        today = datetime.now().strftime("%Y-%m-%d")
+        row = conn.execute(
+            "SELECT COUNT(*) AS cnt FROM readings "
+            "WHERE review_due_at IS NOT NULL AND review_due_at != '' "
+            "AND review_due_at <= ?",
+            (today,),
+        ).fetchone()
+        return int(row["cnt"]) if row else 0
+    finally:
+        conn.close()
+
+
 def update_outcome(
     reading_id: int,
     category: str,
     outcome_status: str,
     outcome_notes: str,
+    review_due_at: str | None = None,
 ) -> None:
     conn = get_connection()
     try:
         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         conn.execute(
             "UPDATE readings SET category = ?, outcome_status = ?, "
-            "outcome_notes = ?, reviewed_at = ? WHERE id = ?",
-            (category, outcome_status, outcome_notes, now, reading_id),
+            "outcome_notes = ?, reviewed_at = ?, review_due_at = ? WHERE id = ?",
+            (category, outcome_status, outcome_notes, now, review_due_at, reading_id),
         )
         conn.commit()
     finally:
@@ -219,5 +348,30 @@ def update_ai_summary(reading_id: int, ai_summary: str) -> None:
             "UPDATE readings SET ai_summary = ? WHERE id = ?", (ai_summary, reading_id)
         )
         conn.commit()
+    finally:
+        conn.close()
+
+
+def delete_reading(reading_id: int) -> bool:
+    return delete_readings([reading_id]) > 0
+
+
+def delete_readings(reading_ids: list[int]) -> int:
+    ids = [i for i in reading_ids if isinstance(i, int) and i > 0]
+    if not ids:
+        return 0
+    conn = get_connection()
+    try:
+        placeholders = ",".join("?" * len(ids))
+        conn.execute(
+            f"DELETE FROM reading_cards WHERE reading_id IN ({placeholders})",
+            ids,
+        )
+        cur = conn.execute(
+            f"DELETE FROM readings WHERE id IN ({placeholders})",
+            ids,
+        )
+        conn.commit()
+        return cur.rowcount
     finally:
         conn.close()

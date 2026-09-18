@@ -10,9 +10,15 @@
 
 {% set clarifiers_by_position = clarifiers_by_position|default({}) %}
 
-{% set reading_categories = reading_categories|default({}) %}
+{% set reading_categories = reading_categories|default(READING_CATEGORIES) %}
 
-{% set outcome_statuses = outcome_statuses|default({}) %}
+{% set outcome_statuses = outcome_statuses|default(OUTCOME_STATUSES) %}
+
+{% if READING_TAGS is defined %}{% set tag_map = READING_TAGS %}{% else %}{% set tag_map = {'love':'感情','career':'事业','spiritual':'灵性','general':'综合'} %}{% endif %}
+
+{% set parent_reading = parent_reading|default(none) %}
+
+{% set follow_ups = follow_ups|default([]) %}
 
 <a href="/history" class="back-link">← 返回历史记录</a>
 
@@ -27,6 +33,12 @@
         {{ record.created_at }} · {{ spread.name_zh }}
 
         <span class="tag">{{ category_labels.get(spread.category, spread.category) }}</span>
+        {% if record.querent %}
+        <span class="tag tag-querent">{{ record.querent }}</span>
+        {% endif %}
+        {% for t in record.tags %}
+        <span class="tag tag-theme">{{ tag_map.get(t, t) }}</span>
+        {% endfor %}
 
     </p>
 
@@ -36,8 +48,38 @@
 
     </div>
 
+    {% if record.daily_entry_id %}
+    <div class="question-box follow-up-box">
+        <strong>来自每日一牌：</strong>
+        <a href="/daily">查看每日记录 #{{ record.daily_entry_id }}</a>
+    </div>
+    {% endif %}
+
+    {% if parent_reading %}
+    <div class="question-box follow-up-box">
+        <strong>续占自：</strong>
+        <a href="/reading/{{ parent_reading.id }}">#{{ parent_reading.id }} {{ parent_reading.question }}</a>
+        {% if record.follow_up_note %}<br><span class="follow-up-note">{{ record.follow_up_note }}</span>{% endif %}
+    </div>
+    {% endif %}
+
+    {% if follow_ups %}
+    <div class="follow-up-list">
+        <strong>后续续占：</strong>
+        {% for fu in follow_ups %}
+        <a href="/reading/{{ fu.id }}" class="tag">#{{ fu.id }} {{ fu.question[:24] }}{% if fu.question|length > 24 %}…{% endif %}</a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     <div class="result-actions">
-        <a href="/api/reading/{{ record.id }}/export.md" class="btn btn-secondary btn-sm" download>导出 Markdown</a>
+        <a href="/reading/new?parent_id={{ record.id }}" class="btn btn-secondary btn-sm">以此续占</a>
+        <a href="/api/reading/{{ record.id }}/export.md" class="btn btn-secondary btn-sm" download>导出完整版</a>
+        <a href="/api/reading/{{ record.id }}/export.md?mode=client" class="btn btn-secondary btn-sm" download>导出案主版</a>
+        <button type="button" class="btn btn-ghost btn-sm" id="delete-reading-btn"
+                data-reading-id="{{ record.id }}"
+                data-question="{{ record.question | e }}">删除记录</button>
+        <form method="post" action="/reading/{{ record.id }}/delete" id="delete-reading-form" hidden></form>
         {% if record.category %}
         <span class="tag tag-category">{{ reading_categories.get(record.category, record.category) }}</span>
         {% endif %}
@@ -386,7 +428,17 @@
                     {% endfor %}
                 </select>
             </label>
+            <label class="form-label">
+                计划回访
+                <input type="date" name="review_due_at" class="form-input"
+                       value="{{ record.review_due_at or '' }}">
+            </label>
         </div>
+        {% if record.review_due_at and record.review_due_at <= today %}
+        <p class="review-due-alert">已到回访日期（{{ record.review_due_at }}），请记录实际应验情况。</p>
+        {% elif record.review_due_at %}
+        <p class="review-meta">计划回访：{{ record.review_due_at }}</p>
+        {% endif %}
         <textarea name="outcome_notes" rows="3" class="question-input"
                   placeholder="记录实际发生了什么、哪些解读应验了...">{{ record.outcome_notes }}</textarea>
         {% if record.reviewed_at %}
@@ -396,15 +448,53 @@
     </form>
 </div>
 
-<h2>占卜笔记</h2>
+<h2 id="layered-notes">分层笔记</h2>
 
-<form method="post" action="/reading/{{ record.id }}/notes">
+<div class="layered-notes">
 
-    <textarea name="notes" rows="4" class="question-input" placeholder="记录你的感受、领悟或后续验证...">{{ record.notes }}</textarea>
+    <div class="layered-note-block">
+        <h3>第一印象</h3>
+        <p class="layered-note-hint">翻开牌阵时的直觉、情绪与整体氛围</p>
+        <form method="post" action="/reading/{{ record.id }}/first-impression">
+            <textarea name="first_impression" rows="3" class="question-input"
+                      placeholder="第一眼看到牌阵时的感受...">{{ record.first_impression }}</textarea>
+            <button type="submit" class="btn btn-secondary btn-sm">保存第一印象</button>
+        </form>
+    </div>
 
-    <button type="submit" class="btn btn-secondary">保存笔记</button>
+    <div class="layered-note-block">
+        <h3>过程笔记</h3>
+        <p class="layered-note-hint">解读过程中的思考、联想与细节记录</p>
+        <form method="post" action="/reading/{{ record.id }}/notes">
+            <textarea name="notes" rows="4" class="question-input"
+                      placeholder="记录你的感受、领悟或后续验证...">{{ record.notes }}</textarea>
+            <button type="submit" class="btn btn-secondary btn-sm">保存过程笔记</button>
+        </form>
+    </div>
 
-</form>
+    <div class="layered-note-block">
+        <h3>最终总结</h3>
+        <p class="layered-note-hint">整合各位置后的结论与给案主的建议</p>
+        <form method="post" action="/reading/{{ record.id }}/final-summary">
+            <textarea name="final_summary" rows="4" class="question-input"
+                      placeholder="给案主的核心结论与行动建议...">{{ record.final_summary }}</textarea>
+            <button type="submit" class="btn btn-secondary btn-sm">保存最终总结</button>
+        </form>
+    </div>
+
+</div>
+
+<div id="delete-dialog" class="confirm-dialog" hidden aria-hidden="true">
+    <div class="confirm-dialog-backdrop" data-dialog-dismiss></div>
+    <div class="confirm-dialog-panel" role="dialog" aria-labelledby="delete-dialog-title" aria-modal="true">
+        <h3 id="delete-dialog-title">确认删除</h3>
+        <p id="delete-dialog-message"></p>
+        <div class="confirm-dialog-actions">
+            <button type="button" class="btn btn-secondary" id="delete-cancel">取消</button>
+            <button type="button" class="btn btn-primary" id="delete-confirm">确认删除</button>
+        </div>
+    </div>
+</div>
 
 {% endblock %}
 
@@ -412,7 +502,7 @@
 
 {% block scripts %}
 
-<script src="/static/js/reading.js?v=5"></script>
+<script src="/static/js/reading.js?v=6"></script>
 
 {% endblock %}
 

@@ -4,7 +4,7 @@
 {% block content %}
 <div class="page-header">
     <h1>占卜对比</h1>
-    <p class="page-desc">选择两次历史记录，左右对照牌面变化</p>
+    <p class="page-desc">选择两次历史记录，按坑位对照牌面变化</p>
 </div>
 
 <form method="get" action="/compare" class="compare-form filter-bar">
@@ -28,20 +28,12 @@
 </form>
 
 {% if reading_a and reading_b %}
-<div class="compare-panel">
+<div class="compare-panel compare-summary">
     {% for label, record, spread in [('记录 A', reading_a, spread_a), ('记录 B', reading_b, spread_b)] %}
     <div class="compare-column">
         <h2>{{ label }}</h2>
         <p class="compare-meta">{{ record.created_at }} · {{ spread.name_zh if spread else record.spread_id }}</p>
         <div class="question-box"><strong>问题：</strong>{{ record.question }}</div>
-        <div class="compare-cards">
-            {% for c in record.spread_cards %}
-            {% set card = card_map.get(c.card_id) %}
-            <div class="compare-card-item">
-                {% if card %}{{ card_face(card, c.is_reversed, 'sm', true) }}{% endif %}
-            </div>
-            {% endfor %}
-        </div>
         {% if record.outcome_notes %}
         <p class="compare-outcome"><strong>回顾：</strong>{{ record.outcome_notes }}</p>
         {% endif %}
@@ -50,12 +42,67 @@
     {% endfor %}
 </div>
 
-{% if common_cards %}
-<div class="tips-box">
-    <h3>重复出现的牌</h3>
-    <p>{% for name in common_cards %}{{ name }}{% if not loop.last %}、{% endif %}{% endfor %} — 表示该能量在两次占卜中持续存在。</p>
+{% if not same_spread %}
+<div class="tips-box compare-warn">
+    <p>两次占卜使用了不同牌阵，坑位名称可能不对应，请谨慎对照解读。</p>
 </div>
 {% endif %}
+
+{% if position_rows %}
+<h2>坑位对照</h2>
+<div class="compare-align-table">
+    {% for row in position_rows %}
+    <div class="compare-align-row {% if row.same_card %}compare-match{% endif %} {% if row.orient_flip %}compare-flip{% endif %}">
+        <div class="compare-align-label">
+            <span class="slot-label">{{ row.label }}</span>
+            {% if row.same_card %}
+            <span class="compare-match-badge">同牌</span>
+            {% endif %}
+            {% if row.orient_flip %}
+            <span class="compare-flip-badge">正逆翻转</span>
+            {% endif %}
+        </div>
+        <div class="compare-align-cards">
+            <div class="compare-align-slot">
+                {% if row.card_a %}
+                {% set card_a = card_map.get(row.card_a.card_id) %}
+                {% if card_a %}{{ card_face(card_a, row.card_a.is_reversed, 'sm', true) }}{% endif %}
+                {% else %}
+                <span class="compare-empty">—</span>
+                {% endif %}
+            </div>
+            <div class="compare-align-slot">
+                {% if row.card_b %}
+                {% set card_b = card_map.get(row.card_b.card_id) %}
+                {% if card_b %}{{ card_face(card_b, row.card_b.is_reversed, 'sm', true) }}{% endif %}
+                {% else %}
+                <span class="compare-empty">—</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if common_anywhere %}
+<div class="tips-box">
+    <h3>重复出现的牌</h3>
+    <p>
+        {% for item in common_anywhere %}{{ item.name_zh }}{% if not loop.last %}、{% endif %}{% endfor %}
+        — 该能量在两次占卜中均有出现。
+    </p>
+    {% if same_spread and common_same_position %}
+    <p class="compare-same-pos">
+        <strong>同坑位同牌：</strong>
+        {% for item in common_same_position %}
+        {{ item.label }}「{{ item.name_zh }}」{% if item.orient_flip %}（正逆翻转）{% endif %}{% if not loop.last %}、{% endif %}
+        {% endfor %}
+    </p>
+    {% endif %}
+</div>
+{% endif %}
+
 {% elif not readings %}
 <div class="empty-state">
     <p>至少需要两次占卜记录才能对比。</p>

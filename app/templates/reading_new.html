@@ -1,6 +1,13 @@
 {% extends "base.html" %}
 {% block title %}新建占卜 - 塔罗解牌助手{% endblock %}
 {% block content %}
+{% if READING_TAGS is defined %}{% set tag_map = READING_TAGS %}{% else %}{% set tag_map = {'love':'感情','career':'事业','spiritual':'灵性','general':'综合'} %}{% endif %}
+{% set querent_options = querent_options|default(['自己']) %}
+{% set selected_tags = selected_tags|default([]) %}
+{% set querent = querent|default('') %}
+{% set parent_id = parent_id|default(0) %}
+{% set follow_up_note = follow_up_note|default('') %}
+{% set tags_param = tags_param|default('') %}
 <h1 class="page-title-float">新建占卜</h1>
 <div class="step-bar glass">
     <div class="step-indicator">
@@ -11,11 +18,19 @@
 </div>
 
 {% if step == 1 %}
-<!-- Step 1: Question -->
 <section class="reading-step">
     <h2>设定你的问题</h2>
     {% if spread %}
     <div class="question-box"><strong>已选牌阵：</strong>{{ spread.name_zh }}（{{ spread.card_count }} 张牌）</div>
+    {% endif %}
+    {% if parent_reading %}
+    <div class="question-box">
+        <strong>续占来源：</strong>
+        <a href="/reading/{{ parent_reading.id }}">#{{ parent_reading.id }} {{ parent_reading.question[:40] }}{% if parent_reading.question|length > 40 %}…{% endif %}</a>
+    </div>
+    {% endif %}
+    {% if error == 'querent' %}
+    <div class="field-error show" style="display:flex;margin-bottom:1rem;"><span>请填写案主名称后再继续。</span></div>
     {% endif %}
     <div class="tips-box">
         <h3>提问技巧</h3>
@@ -26,14 +41,63 @@
             <li>专注于你自身能影响和改变的事情</li>
         </ul>
     </div>
-    <form method="get" action="/reading/new" id="question-form" novalidate>
+    <form method="get" action="/reading/new" id="question-form" class="reading-meta-form" novalidate>
         {% if spread %}
         <input type="hidden" name="step" value="3">
         <input type="hidden" name="spread_id" value="{{ spread.id }}">
         {% else %}
         <input type="hidden" name="step" value="2">
         {% endif %}
-        <textarea name="question" id="question-input" rows="3" placeholder="输入你的问题..." class="question-input">{{ question }}</textarea>
+        {% if parent_id %}
+        <input type="hidden" name="parent_id" value="{{ parent_id }}">
+        {% endif %}
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="querent">案主 <span class="required">*</span></label>
+                <input type="text" id="querent" name="querent" class="form-input" required
+                       value="{{ querent }}" placeholder="输入案主名称，如：自己、小美、客户A" maxlength="40" autocomplete="off">
+                <p class="field-hint">可自由输入任意名称，用于在历史记录中归类筛选</p>
+                {% if querent_options %}
+                <div class="querent-quick-picks">
+                    <span class="quick-picks-label">最近使用：</span>
+                    {% for q in querent_options %}
+                    <button type="button" class="btn btn-ghost btn-sm querent-pick" data-querent="{{ q }}">{{ q }}</button>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="field-error" id="querent-error" role="alert">
+            <span class="field-error-icon">☽</span>
+            <span>请填写案主名称</span>
+        </div>
+
+        <div class="form-group">
+            <label>主题标签</label>
+            <div class="tag-checkboxes">
+                {% for key, label in tag_map.items() %}
+                <label class="tag-check">
+                    <input type="checkbox" name="tags" value="{{ key }}"
+                           {% if key in selected_tags %}checked{% endif %}>
+                    <span>{{ label }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if parent_id %}
+        <div class="form-group">
+            <label for="follow_up_note">续占说明</label>
+            <input type="text" id="follow_up_note" name="follow_up_note" class="form-input"
+                   value="{{ follow_up_note }}" placeholder="与上次占卜的关系，如：追问感情发展">
+        </div>
+        {% endif %}
+
+        <div class="form-group">
+            <label for="question-input">问题 <span class="required">*</span></label>
+            <textarea name="question" id="question-input" rows="3" placeholder="输入你的问题..." class="question-input">{{ question }}</textarea>
+        </div>
         <div class="field-error" id="question-error" role="alert">
             <span class="field-error-icon">☽</span>
             <span>请先写下你想问的问题</span>
@@ -45,12 +109,12 @@
 </section>
 
 {% elif step == 2 %}
-<!-- Step 2: Choose spread -->
 <section class="reading-step">
     <h2>选择牌阵</h2>
+    <p class="page-desc">案主：{{ querent }}{% if selected_tags %} · {% for t in selected_tags %}{{ tag_map.get(t, t) }}{% if not loop.last %} / {% endif %}{% endfor %}{% endif %}</p>
     <div class="spread-grid">
         {% for s in spreads %}
-        <a href="/reading/new?step=3&spread_id={{ s.id }}&question={{ question | urlencode }}" class="spread-card">
+        <a href="/reading/new?step=3&spread_id={{ s.id }}&question={{ question | urlencode }}{% if meta_query %}&{{ meta_query }}{% else %}&querent={{ querent | urlencode }}&tags={{ tags_param | urlencode }}{% endif %}" class="spread-card">
             <span class="spread-count">{{ s.card_count }} 张牌</span>
             <h3>{{ s.name_zh }}</h3>
             <span class="tag">{{ category_labels.get(s.category, s.category) }}</span>
@@ -61,18 +125,40 @@
 </section>
 
 {% elif step == 3 and spread %}
-<!-- Step 3: Input cards -->
 <section class="reading-step">
     <h2>录入抽到的牌</h2>
     {% if question %}
     <div class="question-box"><strong>问题：</strong>{{ question }}</div>
     {% endif %}
-    <p class="page-desc">牌阵：{{ spread.name_zh }} · 请按坑位顺序填入你线下抽到的牌</p>
+    <p class="page-desc">
+        牌阵：{{ spread.name_zh }} · 案主：{{ querent }}
+        {% if selected_tags %} · {% for t in selected_tags %}{{ tag_map.get(t, t) }}{% if not loop.last %} / {% endif %}{% endfor %}{% endif %}
+    </p>
+    {% if daily_entry %}
+    <div class="question-box">
+        <strong>来自每日一牌：</strong>{{ daily_entry.entry_date }}
+        — 牌面已预填，确认后即可生成解读
+    </div>
+    {% endif %}
+    {% if parent_reading %}
+    <p class="page-desc">续占自 <a href="/reading/{{ parent_reading.id }}">#{{ parent_reading.id }}</a>{% if follow_up_note %} — {{ follow_up_note }}{% endif %}</p>
+    {% endif %}
     <p class="page-desc" style="font-size:0.82rem;">提示：可搜索牌名/英文/编号；点击快捷按钮选牌；右键快捷按钮可收藏</p>
 
     <form method="post" action="/reading/submit" id="reading-form" novalidate>
         <input type="hidden" name="question" value="{{ question }}">
         <input type="hidden" name="spread_id" value="{{ spread.id }}">
+        <input type="hidden" name="querent" value="{{ querent }}">
+        {% for t in selected_tags %}
+        <input type="hidden" name="tags" value="{{ t }}">
+        {% endfor %}
+        {% if parent_id %}
+        <input type="hidden" name="parent_reading_id" value="{{ parent_id }}">
+        <input type="hidden" name="follow_up_note" value="{{ follow_up_note }}">
+        {% endif %}
+        {% if daily_id %}
+        <input type="hidden" name="daily_entry_id" value="{{ daily_id }}">
+        {% endif %}
 
         <div class="draw-inputs">
             {% for pos in spread.positions %}
@@ -93,14 +179,16 @@
                             {% for card in cards %}
                             <option value="{{ card.id }}"
                                     data-image="{{ card.image_url }}"
-                                    data-search="{{ card.name_zh }} {{ card.name_en }} {{ card.id }} {{ card.number }}{% if card.suit %} {{ card.suit }}{% endif %}">
+                                    data-search="{{ card.name_zh }} {{ card.name_en }} {{ card.id }} {{ card.number }}{% if card.suit %} {{ card.suit }}{% endif %}"
+                                    {% if prefill_card_id and prefill_card_id == card.id and pos.index == 0 %}selected{% endif %}>
                                 {{ card.name_zh }} ({{ card.name_en }})
                             </option>
                             {% endfor %}
                         </select>
                     </div>
                     <label class="reversed-toggle">
-                        <input type="checkbox" name="reversed_{{ pos.index }}" value="1" class="reversed-check">
+                        <input type="checkbox" name="reversed_{{ pos.index }}" value="1" class="reversed-check"
+                               {% if prefill_reversed and pos.index == 0 %}checked{% endif %}>
                         <span>逆位</span>
                     </label>
                 </div>
@@ -120,5 +208,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/reading.js?v=5"></script>
+<script src="/static/js/reading.js?v=7"></script>
 {% endblock %}
